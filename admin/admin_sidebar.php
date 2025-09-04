@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 ?>
 <div class="sidebar">
     <div class="brand-logo">
-        <img src="images/logo_image/logo1.png" alt="Verve Timepieces Logo">
+        <img src="/images/logo_image/logo1.png" alt="Verve Timepieces Logo">
     </div>
     <!-- Admin Info Dropdown -->
     <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === "admin"): ?>
@@ -21,7 +21,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         <small><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></small>
                     </li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                    <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </div>
         </div>

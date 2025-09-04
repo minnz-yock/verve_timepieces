@@ -1,6 +1,6 @@
 <?php
-require_once('admin_login_check.php');
-require_once('dbconnect.php');
+require_once('../admin_login_check.php');
+require_once('../dbconnect.php');
 
 if (!isset($_SESSION)) session_start();
 

@@ -4,7 +4,6 @@ session_start();
 
 $errorMsg = "";
 
-// Handle the login logic
 if (isset($_POST["submit"])) {
     $email = trim($_POST["email"]);
     $password = $_POST["password"];
@@ -18,18 +17,18 @@ if (isset($_POST["submit"])) {
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verify user & password
+        
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION["user_id"] = $user["id"];
             $_SESSION["username"] = $user["username"];
             $_SESSION["email"] = $user["email"];
             $_SESSION["role"] = $user["role"];
 
-            // Redirect based on role
+            
             if ($user["role"] === "admin") {
-                header("Location: admin_dashboard.php");
+                header("Location: admin\admin_dashboard.php");
             } else {
-                header("Location: homepage.php");
+                header("Location: customer\index.php");
             }
             exit;
         } else {

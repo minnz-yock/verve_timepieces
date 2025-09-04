@@ -1,6 +1,6 @@
 <?php
-require_once "admin_login_check.php";
-require_once "dbconnect.php";
+require_once "../admin_login_check.php";
+require_once "../dbconnect.php";
 if (!isset($_SESSION)) session_start();
 
 // Fetch categories and brands for the dropdowns
@@ -13,7 +13,7 @@ try {
     $brandStmt->execute();
     $brands = $brandStmt->fetchAll();
 } catch (PDOException $e) {
-    echo "<div class='alert alert-danger'>".$e->getMessage()."</div>";
+    echo "<div class='alert alert-danger'>" . $e->getMessage() . "</div>";
     exit;
 }
 
@@ -27,7 +27,7 @@ if (isset($_POST["insertBtn"])) {
     $description = $_POST["description"];
     $fileImage = $_FILES["product_image"];
 
-    $filePath = "images/product_images/" . basename($fileImage['name']);
+    $filePath = "../images/product_images/" . basename($fileImage['name']);
 
     // upload to a specified directory
     $status = move_uploaded_file($fileImage['tmp_name'], $filePath);
@@ -61,6 +61,7 @@ if (isset($_POST["insertBtn"])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Insert Product - Admin</title>
@@ -68,50 +69,56 @@ if (isset($_POST["insertBtn"])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         body {
-            background: linear-gradient(135deg, #272F44 0%, #4D6CA8 100%);
+            background-color: #352826;
             min-height: 100vh;
-            color: #F3F8FB;
+            color: #DED2C8;
             overflow-x: hidden;
         }
+
         .main-content {
             margin-left: 450px;
             padding: 30px;
         }
+
         .card {
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
             border-radius: 22px;
             box-shadow: 0 8px 32px 0 rgba(39, 47, 68, 0.15);
-            background: #3A4B6E;
+            background: #785A49;
             border: none;
             padding: 0;
         }
+
         .card-header {
-            background: #4D6CA8;
+            background: #A57A5B;
             border-radius: 22px 22px 0 0;
-            color: #F3F8FB;
+            color: #DED2C8;
             font-size: 1.45rem;
             font-weight: 700;
             padding: 1.7rem 2.5rem 1.3rem 2.5rem;
             border-bottom: none;
             letter-spacing: 0.04rem;
         }
+
         .card-body {
             padding: 3rem 3rem 2.2rem 3rem;
         }
+
         .form-label {
-            color: #435A8A;
+            color: #785A49;
             font-weight: 700;
             letter-spacing: 0.06rem;
             font-size: 1.09rem;
             margin-bottom: 6px;
         }
+
         .form-control,
         .form-select {
-            background: #272F44;
-            border: 2px solid #87AFD3;
-            color: #F3F8FB;
+            background: #352826;
+            border: 2px solid #A57A5B;
+            color: #DED2C8;
             border-radius: 10px;
             font-size: 1.07rem;
             padding: 0.9rem 1.15rem;
@@ -120,15 +127,17 @@ if (isset($_POST["insertBtn"])) {
             width: 100%;
             box-shadow: none;
         }
+
         .form-control:focus,
         .form-select:focus {
-            border-color: #6792C5;
+            border-color: #A57A5B;
             box-shadow: 0 0 0 0.14rem #AECBE260;
         }
+
         .btn-primary-admin {
-            background: linear-gradient(90deg, #6792C5 55%, #87AFD3 100%);
+            background-color: #352826;
             border: none;
-            color: #F3F8FB;
+            color: #DED2C8;
             font-weight: 700;
             font-size: 1.18rem;
             border-radius: 14px;
@@ -137,31 +146,56 @@ if (isset($_POST["insertBtn"])) {
             transition: background 0.22s, color 0.15s, box-shadow 0.15s;
             box-shadow: 0 2px 14px 0 rgba(103, 146, 197, 0.19);
         }
-        .btn-primary-admin:hover, .btn-primary-admin:focus {
-            background: linear-gradient(90deg, #577EB9 20%, #4D6CA8 100%);
-            color: #272F44;
+
+        .btn-primary-admin:hover,
+        .btn-primary-admin:focus {
+            background-color: #A57A5B;
+            color: #352826;
             box-shadow: 0 4px 24px rgba(67, 90, 138, 0.16);
         }
+
         .insert-form-row {
             display: flex;
             gap: 70px;
         }
+
         .insert-form-col {
             flex: 1 1 0;
             min-width: 0;
         }
+
         @media (max-width: 1200px) {
-            .card { max-width: 99%; }
-            .card-body { padding: 2rem 1rem 1.5rem 1rem; }
-            .insert-form-row { flex-direction: column; gap: 30px; }
+            .card {
+                max-width: 99%;
+            }
+
+            .card-body {
+                padding: 2rem 1rem 1.5rem 1rem;
+            }
+
+            .insert-form-row {
+                flex-direction: column;
+                gap: 30px;
+            }
         }
+
         @media (max-width: 768px) {
-            .main-content { margin-left: 0; padding: 10px; }
-            .card { width: 100%; }
-            .card-body { padding: 0.7rem 0.4rem 1.2rem 0.4rem; }
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .card {
+                width: 100%;
+            }
+
+            .card-body {
+                padding: 0.7rem 0.4rem 1.2rem 0.4rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <?php include 'admin_sidebar.php'; ?>
     <div class="main-content insert-form-container">
@@ -181,7 +215,7 @@ if (isset($_POST["insertBtn"])) {
                                 <label class="form-label" for="brand_id">Brand</label>
                                 <select class="form-select" name="brand_id" id="brand_id" required>
                                     <option value="" selected>-- Select Brand --</option>
-                                    <?php foreach($brands as $brand): ?>
+                                    <?php foreach ($brands as $brand): ?>
                                         <option value="<?= $brand['brand_id'] ?>">
                                             <?= htmlspecialchars($brand['brand_name']) ?>
                                         </option>
@@ -192,7 +226,7 @@ if (isset($_POST["insertBtn"])) {
                                 <label class="form-label" for="category_id">Category</label>
                                 <select class="form-select" name="category_id" id="category_id" required>
                                     <option value="" selected>-- Select Category --</option>
-                                    <?php foreach($categories as $cat): ?>
+                                    <?php foreach ($categories as $cat): ?>
                                         <option value="<?= $cat['category_id'] ?>">
                                             <?= htmlspecialchars($cat['cat_name']) ?>
                                         </option>
@@ -227,4 +261,7 @@ if (isset($_POST["insertBtn"])) {
         </div>
     </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+
 </html>

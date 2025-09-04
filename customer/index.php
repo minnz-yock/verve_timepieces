@@ -90,7 +90,7 @@ session_start();
             justify-content: center;
             border-radius: 16px;
             transition: opacity 0.3s;
-             z-index: 7;
+            z-index: 7;
         }
         .watch-feature-watch:hover .watch-feature-watch-overlay,
         .watch-feature-watch:focus .watch-feature-watch-overlay {
@@ -156,7 +156,7 @@ session_start();
         </div>
         <div class="watch-feature-watch-holder">
             <div class="watch-feature-watch" tabindex="0">
-                <img src="images\product_images\Tudor_Black_Bay_Fifty_Eight_Bronze.png" alt="Tudor Bronze Watch" style="height: 450px; width:450px;" >
+                <img src="/images/product_images/Tudor_Black_Bay_Fifty_Eight_Bronze.png" alt="Tudor Bronze Watch" style="height: 450px; width:450px;" >
                 <div class="watch-feature-watch-overlay">
                     <a href="product-verve-x.php">Tudor Black Bay Fifty Eight Bronze</a>
                 </div>
@@ -187,7 +187,7 @@ session_start();
             </div>
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img src="images/exquisite_timepieces_inc_cover.jpeg" class="d-block w-100"
+                    <img src="/images/exquisite_timepieces_inc_cover.jpeg" class="d-block w-100"
                         alt="Verve Timepieces - Hero Banner 1">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Discover Your Verve</h5>
@@ -196,7 +196,7 @@ session_start();
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <img src="images/insured_watch.webp" class="d-block w-100" alt="Verve Timepieces - Hero Banner 2">
+                    <img src="/images/insured_watch.webp" class="d-block w-100" alt="Verve Timepieces - Hero Banner 2">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Crafted for Precision</h5>
                         <p>Experience unmatched quality and design.</p>

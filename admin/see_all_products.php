@@ -1,8 +1,8 @@
 <?php
 
-require_once('admin_login_check.php');
+require_once('../admin_login_check.php');
 
-require_once('dbconnect.php');
+require_once('../dbconnect.php');
 
 
 try {
@@ -18,14 +18,13 @@ try {
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id
-            ORDER BY p.product_id ASC"; 
+            ORDER BY p.product_id ASC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $products = $stmt->fetchAll();
+} catch (PDOException $e) {
 
-} catch(PDOException $e) {
-    
     echo "<div class='alert alert-danger' role='alert'>Error fetching products: " . $e->getMessage() . "</div>";
     $products = [];
 }
@@ -33,6 +32,7 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,132 +40,173 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
-       
         body {
-            background-color: #272F44;
+            background-color: #352826;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             min-height: 100vh;
             margin: 0;
-            color: #F3F8FB; 
+            color: #DED2C8;
         }
 
         .main-content {
-            margin-left: 250px; /* To make space for the sidebar */
+            margin-left: 250px;
             padding: 30px;
-            width: 100%; /* Take up remaining width */
+            width: 100%;
         }
+
         .main-content h1 {
-            color: #F3F8FB; /* Very light grey/blue */
+            color: #785A49;
             font-weight: 800;
             margin-bottom: 30px;
             font-size: 2.2rem;
             letter-spacing: 0.5px;
         }
+
         .card {
-            background: #3A4B6E; /* Deeper blue for cards */
+            background: #785A49;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(27, 45, 68, 0.20); /* Darker shadow */
-            border: 1px solid #4D6CA8; /* Darker blue border */
+            box-shadow: 0 4px 15px rgba(27, 45, 68, 0.20);
+            border: 1px solid #A57A5B;
             margin-bottom: 30px;
         }
+
         .card-header {
-            background: #4D6CA8; /* Header text blue for card header */
-            border-bottom: 1px solid #3A4B6E; /* Dark border */
+            background: #A57A5B;
+            border-bottom: 1px solid #785A49;
             border-radius: 12px 12px 0 0;
             padding: 15px 20px;
             font-weight: 600;
-            color: #F3F8FB; /* Very light grey/blue */
+            color: #DED2C8;
             font-size: 1.1rem;
         }
+
         .card-body {
             padding: 20px;
         }
+
         .table {
             border-radius: 0 0 12px 12px;
-            overflow: hidden; /* Important for rounded corners on tables */
+            overflow: hidden;
         }
+
         .table thead th {
-            background-color: #4D6CA8; /* Header text blue */
-            color: #F3F8FB; /* Very light grey/blue */
+            background-color: #A57A5B;
+            color: #DED2C8;
             font-weight: 600;
-            border-bottom: 2px solid #3A4B6E; /* Dark border */
+            border-bottom: 2px solid #785A49;
             text-transform: uppercase;
-            font-size: 0.8rem; /* Smaller font size */
+            font-size: 0.8rem;
             letter-spacing: 0.5px;
         }
+
         .table tbody td {
             vertical-align: middle;
-            color: #435A8A; /* Very light grey/blue */
+            color: #352826;
             font-size: 0.95rem;
-            border-top: 1px solid #3A4B6E; /* Dark border */
+            border-top: 1px solid #785A49;
         }
+
         .table tbody tr:last-child td {
             border-bottom: none;
         }
+
         .table-hover tbody tr:hover {
-            background-color: #4D6CA8;
-        }
-        .action-buttons button, .action-buttons a {
-            margin-right: 5px;
-            font-size: 0.9rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 5px;
-        }
-        .action-buttons .btn-edit { background-color: #6792C5; border-color: #6792C5; color: white;}
-        .action-buttons .btn-edit:hover { background-color: #577EB9; border-color: #577EB9; }
-        .action-buttons .btn-delete { background-color: #e74c3c; border-color: #e74c3c; color: white;}
-        .action-buttons .btn-delete:hover { background-color: #c0392b; border-color: #c0392b; }
+    background-color: #785A49;
+}
 
-        
-        .form-group { margin-bottom: 15px; }
-        .form-label { color: #AECBE2;  font-weight: 600; font-size: 0.85rem;}
-        .form-control {
-            background: #3A4B6E;
-            border: 1px solid #4D6CA8; 
-            color: #F3F8FB;
-            border-radius: 6px;
-            padding: 0.6rem 0.8rem;
-            font-size: 0.95rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-control:focus {
-            border-color: #6792C5; /* Medium blue accent */
-            box-shadow: 0 0 0 2px rgba(103, 146, 197, 0.20); /* Soft glow */
-        }
-        .form-control::placeholder {
-            color: #AECBE2; /* Soft placeholder text */
-        }
-        .btn-primary-admin { /* Specific button for admin actions */
-            background: #6792C5; /* Medium blue accent */
-            border: none;
-            color: #F3F8FB; /* Very light grey/blue */
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            border-radius: 6px;
-            padding: 0.6rem 1rem;
-            transition: background 0.2s;
-        }
-        .btn-primary-admin:hover {
-            background: #577EB9; /* Button hover blue */
-        }
-        .nav-item.active > a {
-            background-color: #4D6CA8 !important; /* Header text blue */
-            color: #F3F8FB !important; /* Very light grey/blue text */
-            border-left: 4px solid #6792C5 !important; /* Medium blue accent */
-        }
+.action-buttons button,
+.action-buttons a {
+    margin-right: 5px;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+}
 
-        /* Responsive adjustments for sidebar */
-        @media (max-width: 991.98px) {
-            .sidebar {
-                display: none; /* Hide sidebar on small screens */
-            }
-            .main-content {
-                margin-left: 0; /* No margin when sidebar is hidden */
-            }
-        }
+.action-buttons .btn-edit {
+    background-color: #A57A5B;
+    border-color: #A57A5B;
+    color: white;
+}
+
+.action-buttons .btn-edit:hover {
+    background-color: #785A49;
+    border-color: #785A49;
+}
+
+.action-buttons .btn-delete {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+    color: white;
+}
+
+.action-buttons .btn-delete:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    color: #DED2C8;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.form-control {
+    background: #352826;
+    border: 1px solid #A57A5B;
+    color: #DED2C8;
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: #A57A5B;
+    box-shadow: 0 0 0 2px rgba(167, 122, 91, 0.20);
+}
+
+.form-control::placeholder {
+    color: #DED2C8;
+}
+
+.btn-primary-admin {
+    background: #A57A5B;
+    border: none;
+    color: #DED2C8;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    transition: background 0.2s;
+}
+
+.btn-primary-admin:hover {
+    background: #785A49;
+}
+
+.nav-item.active>a {
+    background-color: #A57A5B !important;
+    color: #DED2C8 !important;
+    border-left: 4px solid #785A49 !important;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        display: none;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
     </style>
 </head>
+
 <body>
     <?php include 'admin_sidebar.php'; ?>
 
@@ -192,33 +233,33 @@ try {
                     </thead>
                     <tbody>
                         <?php foreach ($products as $product): ?>
-                        <tr>
-                            <td>
-                                <?php if (!empty($product['image_url'])): ?>
-                                    <!-- Display product image -->
-                                    <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" style="width: 100px; height: auto; border-radius: 4px;">
-                                <?php else: ?>
-                                    <!-- Placeholder if no image -->
-                                    No Image
-                                <?php endif; ?>
-                            </td>
-                            <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-                            <td><?php echo htmlspecialchars($product['brand_name']); ?></td>
-                            <td><?php echo htmlspecialchars($product['category_name']); ?></td>
-                            <td>$<?php echo number_format($product['price'], 2); ?></td>
-                            <td><?php echo $product['stock_quantity']; ?></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <!-- Edit Link -->
-                                    <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-edit btn-sm"><i class="bi bi-pencil-square"></i> Edit</a>
-                                    
-                                    <!-- Delete Button (triggers modal) -->
-                                    <button type="button" class="btn btn-delete btn-sm" data-bs-toggle="modal" data-bs-target="#deleteProductModal" data-product-id="<?php echo $product['product_id']; ?>" data-product-name="<?php echo htmlspecialchars($product['product_name']); ?>">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td>
+                                    <?php if (!empty($product['image_url'])): ?>
+                                        <!-- Display product image -->
+                                        <img src="../<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" style="width: 100px; height: auto; border-radius: 4px;">
+                                    <?php else: ?>
+                                        <!-- Placeholder if no image -->
+                                        No Image
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+                                <td><?php echo htmlspecialchars($product['brand_name']); ?></td>
+                                <td><?php echo htmlspecialchars($product['category_name']); ?></td>
+                                <td>$<?php echo number_format($product['price'], 2); ?></td>
+                                <td><?php echo $product['stock_quantity']; ?></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <!-- Edit Link -->
+                                        <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-edit btn-sm"><i class="bi bi-pencil-square"></i> Edit</a>
+
+                                        <!-- Delete Button (triggers modal) -->
+                                        <button type="button" class="btn btn-delete btn-sm" data-bs-toggle="modal" data-bs-target="#deleteProductModal" data-product-id="<?php echo $product['product_id']; ?>" data-product-name="<?php echo htmlspecialchars($product['product_name']); ?>">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -265,7 +306,7 @@ try {
 
         // --- Modal handling for delete confirmation ---
         // When the delete button is clicked, populate the modal with product details
-        document.getElementById('deleteProductModal').addEventListener('show.bs.modal', function (event) {
+        document.getElementById('deleteProductModal').addEventListener('show.bs.modal', function(event) {
             // Button that triggered the modal
             const button = event.relatedTarget;
             // Extract product info from data-attributes
@@ -279,4 +320,5 @@ try {
         });
     </script>
 </body>
+
 </html>

@@ -1,6 +1,6 @@
 <?php
 
-require_once('admin_login_check.php');
+require_once('../admin_login_check.php');
 
 ?>
 <!DOCTYPE html>

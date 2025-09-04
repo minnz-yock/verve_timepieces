@@ -6,8 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
         <!-- Logo -->
-        <a class="navbar-brand" href="homepage.php">
-            <img src="images/logo_image/logo1.png" alt="Verve Timepieces Logo">
+        <a class="navbar-brand" href="index.php">
+            <img src="../images/logo_image/logo1.png" alt="Verve Timepieces Logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item" href="accdetails.php">Account Details</a></li>
-                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                            <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                         </ul>
                     </li>
                 <?php else: ?>

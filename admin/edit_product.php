@@ -1,6 +1,6 @@
 <?php
-require_once('admin_login_check.php');
-require_once('dbconnect.php');
+require_once('../admin_login_check.php');
+require_once('../dbconnect.php');
 
 if (!isset($_SESSION)) session_start();
 
@@ -51,7 +51,7 @@ if (isset($_POST['updateBtn'])) {
     // Handle image upload if a new image is selected
     $image_url = $product['image_url'];
     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == 0) {
-        $target_dir = "images/product_images/";
+        $target_dir = "../images/product_images/";
         $filename = basename($_FILES["product_image"]["name"]);
         $target_file = $target_dir . $filename;
         if (move_uploaded_file($_FILES["product_image"]["tmp_name"], $target_file)) {
@@ -110,9 +110,9 @@ if ($product && !empty($brands)) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         body {
-            background: linear-gradient(135deg, #272F44 0%, #4D6CA8 100%);
+            background: linear-gradient(135deg, #DED2C8 0%, #785A49 100%);
             min-height: 100vh;
-            color: #F3F8FB;
+            color: #DED2C8;
             overflow-x: hidden;
         }
 
@@ -135,15 +135,15 @@ if ($product && !empty($brands)) {
             margin: 0 auto;
             border-radius: 22px;
             box-shadow: 0 8px 32px 0 rgba(39, 47, 68, 0.15);
-            background: #3A4B6E;
+            background: #785A49;
             border: none;
             padding: 0;
         }
 
         .card-header {
-            background: #4D6CA8;
+            background: #A57A5B;
             border-radius: 22px 22px 0 0;
-            color: #F3F8FB;
+            color: #DED2C8;
             font-size: 1.45rem;
             font-weight: 700;
             padding: 1.7rem 2.5rem 1.3rem 2.5rem;
@@ -156,7 +156,7 @@ if ($product && !empty($brands)) {
         }
 
         .form-label {
-            color: #435A8A;
+            color: #785A49;
             font-weight: 700;
             letter-spacing: 0.06rem;
             font-size: 1.09rem;
@@ -165,9 +165,9 @@ if ($product && !empty($brands)) {
 
         .form-control,
         .form-select {
-            background: #272F44;
-            border: 2px solid #87AFD3;
-            color: #F3F8FB;
+            background: #352826;
+            border: 2px solid #A57A5B;
+            color: #DED2C8;
             border-radius: 10px;
             font-size: 1.07rem;
             padding: 0.9rem 1.15rem;
@@ -179,15 +179,15 @@ if ($product && !empty($brands)) {
 
         .form-control:focus,
         .form-select:focus {
-            border-color: #6792C5;
+            border-color: #A57A5B;
             box-shadow: 0 0 0 0.14rem #AECBE260;
         }
 
         .brand-preview,
         .category-preview {
-            color: #577EB9;
+            color: #A57A5B;
             font-size: 1.01rem;
-            background: #AECBE2;
+            background: #DED2C8;
             border-radius: 7px;
             display: inline-block;
             padding: 4px 14px 4px 14px;
@@ -199,16 +199,15 @@ if ($product && !empty($brands)) {
         .product-image-preview {
             width: 160px;
             border-radius: 10px;
-            background: #272F44;
-            border: 2px solid #435A8A;
+            background: #352826;
+            border: 2px solid #A57A5B;
             margin-bottom: 10px;
             box-shadow: 0 2px 8px rgba(57, 89, 146, 0.19);
         }
 
         .btn-primary-admin {
-            background: linear-gradient(90deg, #6792C5 55%, #87AFD3 100%);
+            background: #352826 ;
             border: none;
-            color: #F3F8FB;
             font-weight: 700;
             font-size: 1.18rem;
             border-radius: 14px;
@@ -220,8 +219,8 @@ if ($product && !empty($brands)) {
 
         .btn-primary-admin:hover,
         .btn-primary-admin:focus {
-            background: linear-gradient(90deg, #577EB9 20%, #4D6CA8 100%);
-            color: #272F44;
+            background-color: #A57A5B;
+            color: #352826;
             box-shadow: 0 4px 24px rgba(67, 90, 138, 0.16);
         }
 
@@ -327,12 +326,13 @@ if ($product && !empty($brands)) {
                                 <label class="form-label" for="price">Price</label>
                                 <input type="number" step="0.01" class="form-control" name="price" id="price" required value="<?= htmlspecialchars($product['price']) ?>">
                             </div>
-                            <div>
+                           
+                        </div>
+                        <div class="edit-form-col">
+                             <div class="mb-4">
                                 <label class="form-label" for="stock_quantity">Stock Quantity</label>
                                 <input type="number" class="form-control" name="stock_quantity" id="stock_quantity" required value="<?= htmlspecialchars($product['stock_quantity']) ?>">
                             </div>
-                        </div>
-                        <div class="edit-form-col">
                             <div class="mb-4">
                                 <label class="form-label" for="description">Description</label>
                                 <textarea class="form-control" name="description" id="description" rows="7" style="resize:vertical;"><?= htmlspecialchars($product['description']) ?></textarea>
@@ -345,7 +345,7 @@ if ($product && !empty($brands)) {
                                     </div>
                                 <?php endif; ?>
                                 <input type="file" class="form-control" name="product_image" id="product_image">
-                                <small style="color:#AECBE2;">Leave blank to keep the current image.</small>
+                                <small style="color:#A57A5B;">Leave blank to keep the current image.</small>
                             </div>
                             <div class="d-flex justify-content-center mt-5">
                                 <button type="submit" name="updateBtn" class="btn btn-primary-admin shadow">Update Product</button>
@@ -357,5 +357,7 @@ if ($product && !empty($brands)) {
         </div>
     </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
 
 </html>
