@@ -1,12 +1,11 @@
 <?php
-
-if (!isset($_SESSION)) {
-    session_start();
-}
+// if (!isset($_SESSION)) {
+//     session_start();
+// }
 
 require_once "../dbconnect.php";
-
-// Fetching categories and brands for filtering
+require_once('../user_login_check.php');
+// Fetching categories, brands, sizes, case materials, genders, and dial colors for filtering
 try {
     $sql = "SELECT * FROM categories";
     $stmt = $conn->prepare($sql);
@@ -25,6 +24,42 @@ try {
     echo $e->getMessage();
 }
 
+try {
+    $sql = "SELECT * FROM sizes";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $sizes = $stmt->fetchAll();
+} catch (PDOException $e) {
+    echo $e->getMessage();
+}
+
+try {
+    $sql = "SELECT * FROM case_materials";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $case_materials = $stmt->fetchAll();
+} catch (PDOException $e) {
+    echo $e->getMessage();
+}
+
+try {
+    $sql = "SELECT * FROM genders";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $genders = $stmt->fetchAll();
+} catch (PDOException $e) {
+    echo $e->getMessage();
+}
+
+try {
+    $sql = "SELECT * FROM dial_colors";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $dial_colors = $stmt->fetchAll();
+} catch (PDOException $e) {
+    echo $e->getMessage();
+}
+
 // --- Filtering logic for GET and POST ---
 $where = [];
 $params = [];
@@ -39,6 +74,30 @@ if (isset($_GET["category"]) && $_GET["category"] != "") {
 if (isset($_GET["brand"]) && $_GET["brand"] != "") {
     $where[] = "p.brand_id = ?";
     $params[] = $_GET["brand"];
+}
+
+// Handle Size filter
+if (isset($_GET["size"]) && $_GET["size"] != "") {
+    $where[] = "p.size_id = ?";
+    $params[] = $_GET["size"];
+}
+
+// Handle Case Material filter
+if (isset($_GET["case_material"]) && $_GET["case_material"] != "") {
+    $where[] = "p.case_material_id = ?";
+    $params[] = $_GET["case_material"];
+}
+
+// Handle Gender filter
+if (isset($_GET["gender"]) && $_GET["gender"] != "") {
+    $where[] = "p.gender_id = ?";
+    $params[] = $_GET["gender"];
+}
+
+// Handle Dial Color filter
+if (isset($_GET["dial_color"]) && $_GET["dial_color"] != "") {
+    $where[] = "p.dial_color_id = ?";
+    $params[] = $_GET["dial_color"];
 }
 
 // Handle Price filter (POST)
@@ -63,7 +122,11 @@ if (isset($_POST["radioBtn"]) && isset($_POST["price"])) {
 $sql = "SELECT p.product_id, p.product_name, p.price, p.description, p.stock_quantity, p.image_url, c.cat_name AS category_name, b.brand_name AS brand_name
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
-        LEFT JOIN brands b ON p.brand_id = b.brand_id";
+        LEFT JOIN brands b ON p.brand_id = b.brand_id
+        LEFT JOIN sizes s ON p.size_id = s.size_id
+        LEFT JOIN case_materials cm ON p.case_material_id = cm.case_material_id
+        LEFT JOIN genders g ON p.gender_id = g.gender_id
+        LEFT JOIN dial_colors dc ON p.dial_color_id = dc.dial_color_id";
 
 if (count($where) > 0) {
     $sql .= " WHERE " . implode(" AND ", $where);
@@ -96,11 +159,13 @@ try {
     <div class="row">
         <?php include 'navbarnew.php'; ?>
     </div>
-    <div class="row">
-        <div class="col-md-2 py-3">
-            <!-- Category Filter -->
-            <div class="card">
-                <form action="viewproducts.php" method="get">
+
+    <!-- Filter Section - moved to top -->
+    <div class="row my-3">
+        <div class="col-md-12 py-3">
+            <form action="viewproducts.php" method="get">
+                <!-- Category Filter -->
+                <div class="d-inline-block me-3">
                     <select name="category" class="form-select" onchange="this.form.submit()">
                         <option value="">Choose Category</option>
                         <?php foreach ($categories as $category): ?>
@@ -109,15 +174,10 @@ try {
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <?php if (isset($_GET['brand'])): ?>
-                        <input type="hidden" name="brand" value="<?= htmlspecialchars($_GET['brand']) ?>">
-                    <?php endif; ?>
-                </form>
-            </div>
+                </div>
 
-            <!-- Brand Filter -->
-            <div class="card my-3">
-                <form action="viewproducts.php" method="get">
+                <!-- Brand Filter -->
+                <div class="d-inline-block me-3">
                     <select name="brand" class="form-select" onchange="this.form.submit()">
                         <option value="">Choose Brand</option>
                         <?php foreach ($brands as $brand): ?>
@@ -126,64 +186,83 @@ try {
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <?php if (isset($_GET['category'])): ?>
-                        <input type="hidden" name="category" value="<?= htmlspecialchars($_GET['category']) ?>">
-                    <?php endif; ?>
-                </form>
-            </div>
-
-            <!-- Price Range Filter -->
-            <div class="card my-3">
-                <form action="viewproducts.php<?= (isset($_GET['category']) || isset($_GET['brand'])) ? '?' . http_build_query(array_filter(['category'=>@$_GET['category'],'brand'=>@$_GET['brand']])) : '' ?>" method="post">
-                    <div class="form-check">
-                        <input type="radio" name="price" value="first" class="form-check-input" <?php if (isset($_POST['price']) && $_POST['price']=='first') echo 'checked'; ?>>
-                        <label class="form-check-label">$200-$350</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" name="price" value="second" class="form-check-input" <?php if (isset($_POST['price']) && $_POST['price']=='second') echo 'checked'; ?>>
-                        <label class="form-check-label">$350-$500</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" name="price" value="third" class="form-check-input" <?php if (isset($_POST['price']) && $_POST['price']=='third') echo 'checked'; ?>>
-                        <label class="form-check-label">$501-$900</label>
-                    </div>
-                    <button type="submit" name="radioBtn" class="btn btn-outline-primary rounded-pill">Search</button>
-                </form>
-            </div>
-
-            <!-- Reset Filter Button -->
-            <div class="card my-3">
-                <form action="viewproducts.php" method="get">
-                    <button type="submit" class="btn btn-outline-danger w-100">Reset Filters</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Products Display -->
-        <div class="col-md-10 py-3">
-            <?php if (isset($products) && count($products) > 0): ?>
-                <div class="row">
-                    <?php foreach ($products as $product): ?>
-                        <div class="col-md-3 mb-3">
-                            <div class="card">
-                                <img src="../<?= htmlspecialchars($product['image_url']) ?>" class="card-img-top" alt="<?= htmlspecialchars($product['product_name']) ?>" style="height: 200px; object-fit: cover;">
-                                <div class="card-body">
-                                    <h5 class="card-title"><?= htmlspecialchars($product['product_name']) ?></h5>
-                                    <p class="card-text"><?= substr(htmlspecialchars($product['description']), 0, 50) ?>...</p>
-                                    <p class="card-text"><strong>$<?= number_format($product['price'], 2) ?></strong></p>
-                                    <p class="card-text"><strong>Stock:</strong> <?= $product['stock_quantity'] ?></p>
-                                    <p class="card-text"><strong>Category:</strong> <?= htmlspecialchars($product['category_name']) ?></p>
-                                    <p class="card-text"><strong>Brand:</strong> <?= htmlspecialchars($product['brand_name']) ?></p>
-                                    <a href="product_details.php?id=<?= $product['product_id'] ?>" class="btn btn-primary">View Details</a>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
                 </div>
-            <?php else: ?>
-                <div class="alert alert-info">No products found. Please try different filters.</div>
-            <?php endif; ?>
+
+                <!-- Size Filter -->
+                <div class="d-inline-block me-3">
+                    <select name="size" class="form-select" onchange="this.form.submit()">
+                        <option value="">Choose Size</option>
+                        <?php foreach ($sizes as $size): ?>
+                            <option value="<?= $size['size_id'] ?>" <?= (isset($_GET['size']) && $_GET['size'] == $size['size_id']) ? 'selected' : '' ?>>
+                                <?= $size['size'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Case Material Filter -->
+                <div class="d-inline-block me-3">
+                    <select name="case_material" class="form-select" onchange="this.form.submit()">
+                        <option value="">Choose Case Material</option>
+                        <?php foreach ($case_materials as $material): ?>
+                            <option value="<?= $material['case_material_id'] ?>" <?= (isset($_GET['case_material']) && $_GET['case_material'] == $material['case_material_id']) ? 'selected' : '' ?>>
+                                <?= $material['material'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Gender Filter -->
+                <div class="d-inline-block me-3">
+                    <select name="gender" class="form-select" onchange="this.form.submit()">
+                        <option value="">Choose Gender</option>
+                        <?php foreach ($genders as $gender): ?>
+                            <option value="<?= $gender['gender_id'] ?>" <?= (isset($_GET['gender']) && $_GET['gender'] == $gender['gender_id']) ? 'selected' : '' ?>>
+                                <?= $gender['gender'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Dial Color Filter -->
+                <div class="d-inline-block me-3">
+                    <select name="dial_color" class="form-select" onchange="this.form.submit()">
+                        <option value="">Choose Dial Color</option>
+                        <?php foreach ($dial_colors as $color): ?>
+                            <option value="<?= $color['dial_color_id'] ?>" <?= (isset($_GET['dial_color']) && $_GET['dial_color'] == $color['dial_color_id']) ? 'selected' : '' ?>>
+                                <?= $color['dial_color'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Reset Filters Button -->
+                <div class="d-inline-block ms-3">
+                    <a href="viewproducts.php" class="btn btn-outline-danger">Reset Filters</a>
+                </div>
+            </form>
         </div>
+    </div>
+
+    <!-- Products Display -->
+    <div class="row">
+        <?php if (isset($products) && count($products) > 0): ?>
+            <?php foreach ($products as $product): ?>
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <img src="../<?= htmlspecialchars($product['image_url']) ?>" class="card-img-top" alt="<?= htmlspecialchars($product['product_name']) ?>" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= htmlspecialchars($product['brand_name']) ?></h5>
+                            <p class="card-title"><?= htmlspecialchars($product['product_name']) ?></p> <!-- Product Name below brand -->
+                            <p class="card-text"><strong>$<?= number_format($product['price'], 2) ?></strong></p>
+                            <a href="product_details.php?id=<?= $product['product_id'] ?>" class="btn btn-primary w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="alert alert-info w-100">No products found. Please try different filters.</div>
+        <?php endif; ?>
     </div>
 </div>
 

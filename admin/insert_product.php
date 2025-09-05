@@ -1,9 +1,9 @@
-<?php
+<?php 
 require_once "../admin_login_check.php";
 require_once "../dbconnect.php";
 if (!isset($_SESSION)) session_start();
 
-// Fetch categories and brands for the dropdowns
+// Fetch categories, brands, sizes, case materials, genders, and dial colors for dropdowns
 try {
     $catStmt = $conn->prepare("SELECT * FROM categories");
     $catStmt->execute();
@@ -12,6 +12,22 @@ try {
     $brandStmt = $conn->prepare("SELECT * FROM brands");
     $brandStmt->execute();
     $brands = $brandStmt->fetchAll();
+
+    $sizeStmt = $conn->prepare("SELECT * FROM sizes");
+    $sizeStmt->execute();
+    $sizes = $sizeStmt->fetchAll();
+
+    $caseStmt = $conn->prepare("SELECT * FROM case_materials");
+    $caseStmt->execute();
+    $case_materials = $caseStmt->fetchAll();
+
+    $genderStmt = $conn->prepare("SELECT * FROM genders");
+    $genderStmt->execute();
+    $genders = $genderStmt->fetchAll();
+
+    $dialStmt = $conn->prepare("SELECT * FROM dial_colors");
+    $dialStmt->execute();
+    $dial_colors = $dialStmt->fetchAll();
 } catch (PDOException $e) {
     echo "<div class='alert alert-danger'>" . $e->getMessage() . "</div>";
     exit;
@@ -23,17 +39,22 @@ if (isset($_POST["insertBtn"])) {
     $price = $_POST["price"];
     $category_id = $_POST["category_id"];
     $brand_id = $_POST["brand_id"];
+    $size_id = $_POST["size_id"];
+    $case_material_id = $_POST["case_material_id"];
+    $gender_id = $_POST["gender_id"];
+    $dial_color_id = $_POST["dial_color_id"];
     $stock_quantity = $_POST["stock_quantity"];
     $description = $_POST["description"];
     $fileImage = $_FILES["product_image"];
 
     $filePath = "../images/product_images/" . basename($fileImage['name']);
 
-    // upload to a specified directory
+    // Upload to a specified directory
     $status = move_uploaded_file($fileImage['tmp_name'], $filePath);
     if ($status) {
         try {
-            $sql = "INSERT INTO products (product_name, description, price, stock_quantity, category_id, brand_id, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO products (product_name, description, price, stock_quantity, category_id, brand_id, size_id, case_material_id, gender_id, dial_color_id, image_url) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $flag = $stmt->execute([
                 $product_name,
@@ -42,6 +63,10 @@ if (isset($_POST["insertBtn"])) {
                 $stock_quantity,
                 $category_id,
                 $brand_id,
+                $size_id,
+                $case_material_id,
+                $gender_id,
+                $dial_color_id,
                 $filePath
             ]);
             $id = $conn->lastInsertId();
@@ -59,6 +84,7 @@ if (isset($_POST["insertBtn"])) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -73,6 +99,7 @@ if (isset($_POST["insertBtn"])) {
             min-height: 100vh;
             color: #DED2C8;
             overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .main-content {
@@ -84,7 +111,7 @@ if (isset($_POST["insertBtn"])) {
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
-            border-radius: 22px;
+            border-radius: 20px;
             box-shadow: 0 8px 32px 0 rgba(39, 47, 68, 0.15);
             background: #785A49;
             border: none;
@@ -93,12 +120,11 @@ if (isset($_POST["insertBtn"])) {
 
         .card-header {
             background: #A57A5B;
-            border-radius: 22px 22px 0 0;
+            border-radius: 20px 20px 0 0;
             color: #DED2C8;
             font-size: 1.45rem;
             font-weight: 700;
-            padding: 1.7rem 2.5rem 1.3rem 2.5rem;
-            border-bottom: none;
+            padding: 1.7rem 2.5rem;
             letter-spacing: 0.04rem;
         }
 
@@ -156,7 +182,7 @@ if (isset($_POST["insertBtn"])) {
 
         .insert-form-row {
             display: flex;
-            gap: 70px;
+            gap: 40px;
         }
 
         .insert-form-col {
@@ -234,10 +260,32 @@ if (isset($_POST["insertBtn"])) {
                                 </select>
                             </div>
                             <div class="mb-4">
+                                <label class="form-label" for="size_id">Size</label>
+                                <select class="form-select" name="size_id" id="size_id" required>
+                                    <option value="" selected>-- Select Size --</option>
+                                    <?php foreach ($sizes as $size): ?>
+                                        <option value="<?= $size['size_id'] ?>">
+                                            <?= htmlspecialchars($size['size']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label" for="case_material_id">Case Material</label>
+                                <select class="form-select" name="case_material_id" id="case_material_id" required>
+                                    <option value="" selected>-- Select Case Material --</option>
+                                    <?php foreach ($case_materials as $material): ?>
+                                        <option value="<?= $material['case_material_id'] ?>">
+                                            <?= htmlspecialchars($material['material']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-4">
                                 <label class="form-label" for="price">Price</label>
                                 <input type="number" step="0.01" class="form-control" name="price" id="price" required>
                             </div>
-                            <div>
+                            <div class="mb-4">
                                 <label class="form-label" for="stock_quantity">Stock Quantity</label>
                                 <input type="number" class="form-control" name="stock_quantity" id="stock_quantity" required>
                             </div>
@@ -246,6 +294,28 @@ if (isset($_POST["insertBtn"])) {
                             <div class="mb-4">
                                 <label class="form-label" for="description">Description</label>
                                 <textarea class="form-control" name="description" id="description" rows="7" style="resize:vertical;"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label" for="gender_id">Gender</label>
+                                <select class="form-select" name="gender_id" id="gender_id" required>
+                                    <option value="" selected>-- Select Gender --</option>
+                                    <?php foreach ($genders as $gender): ?>
+                                        <option value="<?= $gender['gender_id'] ?>">
+                                            <?= htmlspecialchars($gender['gender']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label" for="dial_color_id">Dial Color</label>
+                                <select class="form-select" name="dial_color_id" id="dial_color_id" required>
+                                    <option value="" selected>-- Select Dial Color --</option>
+                                    <?php foreach ($dial_colors as $color): ?>
+                                        <option value="<?= $color['dial_color_id'] ?>">
+                                            <?= htmlspecialchars($color['dial_color']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label" for="product_image">Product Image</label>
@@ -262,6 +332,5 @@ if (isset($_POST["insertBtn"])) {
     </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
 
 </html>

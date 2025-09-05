@@ -1,5 +1,9 @@
 <?php
-session_start();
+
+require_once('../user_login_check.php');
+// session_start();
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -151,7 +155,7 @@ session_start();
         <div class="watch-feature-side watch-feature-left d-flex flex-column justify-content-center align-items-center">
             <div>
                 <h3 class="fw-bold mb-4">EXPLORE THE WORLD'S<br>LARGEST WATCH FINDER</h3>
-                <a href="shop.php" class="btn btn-light px-4 py-2 fw-semibold">EXPLORE</a>
+                <a href="viewproducts.php" class="btn btn-light px-4 py-2 fw-semibold">EXPLORE</a>
             </div>
         </div>
         <div class="watch-feature-watch-holder">

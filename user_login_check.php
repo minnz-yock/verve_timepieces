@@ -1,10 +1,9 @@
 <?php
 session_start();
 
-
 if (!isset($_SESSION['username'])) {
-
-    header("Location: signinform.php");
-    exit(); 
+    // from customer/* pages this must jump back to the project root
+    header("Location: ../signinform.php"); // was: "signinform.php"
+    exit();
 }
 ?>

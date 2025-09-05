@@ -34,32 +34,20 @@ if (session_status() === PHP_SESSION_NONE) {
         <!-- Products Category -->
         <div class="category-title">Products</div>
         <li>
-            <a href="see_all_products.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'see_all_products.php') ? 'active' : ''; ?>">
-                <i class="bi bi-tags me-2"></i> See All Products
+            <a href="product_management.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'product_management.php') ? 'active' : ''; ?>">
+                <i class="bi bi-tags me-2"></i> Products Management
             </a>
         </li>
-        <li>
-            <a href="insert_product.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'insert_product.php') ? 'active' : ''; ?>">
-                <i class="bi bi-plus-circle me-2"></i> Add Product
-            </a>
-        </li>
-        <li>
-            <a href="add_category.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'add_category.php') ? 'active' : ''; ?>">
-                <i class="bi bi-tag-fill me-2"></i> Add Category
-            </a>
-        </li>
+     
+      
         <!-- Users Category -->
         <div class="category-title">Users</div>
         <li>
-            <a href="see_all_users.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'see_all_users.php') ? 'active' : ''; ?>">
+            <a href="admin_users.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_users.php') ? 'active' : ''; ?>">
                 <i class="bi bi-people me-2"></i> See All Users
             </a>
         </li>
-        <li>
-            <a href="add_user.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'add_user.php') ? 'active' : ''; ?>">
-                <i class="bi bi-person-plus me-2"></i> Add User
-            </a>
-        </li>
+    
         <!-- Add more main categories as needed -->
     </ul>
 </div>

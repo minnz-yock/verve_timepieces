@@ -1,10 +1,10 @@
-<?php
+<?php 
 require_once('../admin_login_check.php');
 require_once('../dbconnect.php');
 
 if (!isset($_SESSION)) session_start();
 
-// Fetch categories and brands for the dropdowns
+// Fetch categories, brands, sizes, case materials, genders, and dial colors for dropdowns
 try {
     $catStmt = $conn->prepare("SELECT * FROM categories");
     $catStmt->execute();
@@ -13,6 +13,22 @@ try {
     $brandStmt = $conn->prepare("SELECT * FROM brands");
     $brandStmt->execute();
     $brands = $brandStmt->fetchAll();
+
+    $sizeStmt = $conn->prepare("SELECT * FROM sizes");
+    $sizeStmt->execute();
+    $sizes = $sizeStmt->fetchAll();
+
+    $caseStmt = $conn->prepare("SELECT * FROM case_materials");
+    $caseStmt->execute();
+    $case_materials = $caseStmt->fetchAll();
+
+    $genderStmt = $conn->prepare("SELECT * FROM genders");
+    $genderStmt->execute();
+    $genders = $genderStmt->fetchAll();
+
+    $dialStmt = $conn->prepare("SELECT * FROM dial_colors");
+    $dialStmt->execute();
+    $dial_colors = $dialStmt->fetchAll();
 } catch (PDOException $e) {
     echo "<div class='alert alert-danger'>" . $e->getMessage() . "</div>";
     exit;
@@ -44,6 +60,10 @@ if (isset($_POST['updateBtn'])) {
     $product_name = $_POST['product_name'];
     $brand_id = $_POST['brand_id'];
     $category_id = $_POST['category_id'];
+    $size_id = $_POST['size_id'];
+    $case_material_id = $_POST['case_material_id'];
+    $gender_id = $_POST['gender_id'];
+    $dial_color_id = $_POST['dial_color_id'];
     $description = $_POST['description'];
     $price = $_POST['price'];
     $stock_quantity = $_POST['stock_quantity'];
@@ -60,7 +80,7 @@ if (isset($_POST['updateBtn'])) {
     }
 
     try {
-        $sql = "UPDATE products SET product_name=?, description=?, price=?, stock_quantity=?, category_id=?, brand_id=?, image_url=? WHERE product_id=?";
+        $sql = "UPDATE products SET product_name=?, description=?, price=?, stock_quantity=?, category_id=?, brand_id=?, size_id=?, case_material_id=?, gender_id=?, dial_color_id=?, image_url=? WHERE product_id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             $product_name,
@@ -69,6 +89,10 @@ if (isset($_POST['updateBtn'])) {
             $stock_quantity,
             $category_id,
             $brand_id,
+            $size_id,
+            $case_material_id,
+            $gender_id,
+            $dial_color_id,
             $image_url,
             $product_id
         ]);
@@ -83,6 +107,11 @@ if (isset($_POST['updateBtn'])) {
 // Get previous selected category and brand
 $prevCategory = '';
 $prevBrand = '';
+$prevSize = '';
+$prevCaseMaterial = '';
+$prevGender = '';
+$prevDialColor = '';
+
 if ($product && !empty($categories)) {
     foreach ($categories as $cat) {
         if ($cat['category_id'] == $product['category_id']) {
@@ -95,6 +124,38 @@ if ($product && !empty($brands)) {
     foreach ($brands as $brand) {
         if ($brand['brand_id'] == $product['brand_id']) {
             $prevBrand = $brand['brand_name'];
+            break;
+        }
+    }
+}
+if ($product && !empty($sizes)) {
+    foreach ($sizes as $size) {
+        if ($size['size_id'] == $product['size_id']) {
+            $prevSize = $size['size'];
+            break;
+        }
+    }
+}
+if ($product && !empty($case_materials)) {
+    foreach ($case_materials as $case) {
+        if ($case['case_material_id'] == $product['case_material_id']) {
+            $prevCaseMaterial = $case['material'];
+            break;
+        }
+    }
+}
+if ($product && !empty($genders)) {
+    foreach ($genders as $gender) {
+        if ($gender['gender_id'] == $product['gender_id']) {
+            $prevGender = $gender['gender'];
+            break;
+        }
+    }
+}
+if ($product && !empty($dial_colors)) {
+    foreach ($dial_colors as $dial_color) {
+        if ($dial_color['dial_color_id'] == $product['dial_color_id']) {
+            $prevDialColor = $dial_color['dial_color'];
             break;
         }
     }
@@ -146,8 +207,7 @@ if ($product && !empty($brands)) {
             color: #DED2C8;
             font-size: 1.45rem;
             font-weight: 700;
-            padding: 1.7rem 2.5rem 1.3rem 2.5rem;
-            border-bottom: none;
+            padding: 1.7rem 2.5rem;
             letter-spacing: 0.04rem;
         }
 
@@ -184,7 +244,11 @@ if ($product && !empty($brands)) {
         }
 
         .brand-preview,
-        .category-preview {
+        .category-preview,
+        .size-preview,
+        .case-preview,
+        .gender-preview,
+        .dial-preview {
             color: #A57A5B;
             font-size: 1.01rem;
             background: #DED2C8;
@@ -194,15 +258,6 @@ if ($product && !empty($brands)) {
             margin-bottom: 11px;
             font-weight: 550;
             letter-spacing: 0.03rem;
-        }
-
-        .product-image-preview {
-            width: 160px;
-            border-radius: 10px;
-            background: #352826;
-            border: 2px solid #A57A5B;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(57, 89, 146, 0.19);
         }
 
         .btn-primary-admin {
@@ -299,7 +354,7 @@ if ($product && !empty($brands)) {
                                 <select class="form-select" name="brand_id" id="brand_id" required>
                                     <option value="" selected>-- Select Brand --</option>
                                     <?php foreach ($brands as $brand): ?>
-                                        <option value="<?= $brand['brand_id'] ?>">
+                                        <option value="<?= $brand['brand_id'] ?>" <?= $brand['brand_id'] == $product['brand_id'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($brand['brand_name']) ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -316,8 +371,19 @@ if ($product && !empty($brands)) {
                                 <select class="form-select" name="category_id" id="category_id" required>
                                     <option value="" selected>-- Select Category --</option>
                                     <?php foreach ($categories as $cat): ?>
-                                        <option value="<?= $cat['category_id'] ?>">
+                                        <option value="<?= $cat['category_id'] ?>" <?= $cat['category_id'] == $product['category_id'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($cat['cat_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label" for="size_id">Size</label>
+                                <select class="form-select" name="size_id" id="size_id" required>
+                                    <option value="" selected>-- Select Size --</option>
+                                    <?php foreach ($sizes as $size): ?>
+                                        <option value="<?= $size['size_id'] ?>" <?= $size['size_id'] == $product['size_id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($size['size']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -326,17 +392,53 @@ if ($product && !empty($brands)) {
                                 <label class="form-label" for="price">Price</label>
                                 <input type="number" step="0.01" class="form-control" name="price" id="price" required value="<?= htmlspecialchars($product['price']) ?>">
                             </div>
-                           
-                        </div>
-                        <div class="edit-form-col">
-                             <div class="mb-4">
+                            <div class="mb-4">
                                 <label class="form-label" for="stock_quantity">Stock Quantity</label>
                                 <input type="number" class="form-control" name="stock_quantity" id="stock_quantity" required value="<?= htmlspecialchars($product['stock_quantity']) ?>">
                             </div>
-                            <div class="mb-4">
+                        </div>
+                        <div class="edit-form-col">
+                             <div class="mb-4">
                                 <label class="form-label" for="description">Description</label>
                                 <textarea class="form-control" name="description" id="description" rows="7" style="resize:vertical;"><?= htmlspecialchars($product['description']) ?></textarea>
                             </div>
+
+                            <div class="mb-4">
+                                <label class="form-label" for="case_material_id">Case Material</label>
+                                <select class="form-select" name="case_material_id" id="case_material_id" required>
+                                    <option value="" selected>-- Select Case Material --</option>
+                                    <?php foreach ($case_materials as $material): ?>
+                                        <option value="<?= $material['case_material_id'] ?>" <?= $material['case_material_id'] == $product['case_material_id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($material['material']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label" for="gender_id">Gender</label>
+                                <select class="form-select" name="gender_id" id="gender_id" required>
+                                    <option value="" selected>-- Select Gender --</option>
+                                    <?php foreach ($genders as $gender): ?>
+                                        <option value="<?= $gender['gender_id'] ?>" <?= $gender['gender_id'] == $product['gender_id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($gender['gender']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label" for="dial_color_id">Dial Color</label>
+                                <select class="form-select" name="dial_color_id" id="dial_color_id" required>
+                                    <option value="" selected>-- Select Dial Color --</option>
+                                    <?php foreach ($dial_colors as $color): ?>
+                                        <option value="<?= $color['dial_color_id'] ?>" <?= $color['dial_color_id'] == $product['dial_color_id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($color['dial_color']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
                             <div class="mb-4">
                                 <label class="form-label" for="product_image">Product Image</label>
                                 <?php if ($product['image_url'] && file_exists($product['image_url'])): ?>
@@ -358,6 +460,5 @@ if ($product && !empty($brands)) {
     </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
 
 </html>

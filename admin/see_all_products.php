@@ -1,12 +1,10 @@
 <?php
 
 require_once('../admin_login_check.php');
-
 require_once('../dbconnect.php');
 
-
 try {
-
+    // Update the SQL to include the new product attributes
     $sql = "SELECT 
                 p.product_id,
                 p.product_name,
@@ -14,22 +12,30 @@ try {
                 p.stock_quantity,
                 c.cat_name AS category_name,
                 b.brand_name AS brand_name,
+                s.size AS size_name,
+                cm.material AS case_material_name,
+                g.gender AS gender_name,
+                dc.dial_color AS dial_color_name,
                 p.image_url
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id
+            LEFT JOIN sizes s ON p.size_id = s.size_id
+            LEFT JOIN case_materials cm ON p.case_material_id = cm.case_material_id
+            LEFT JOIN genders g ON p.gender_id = g.gender_id
+            LEFT JOIN dial_colors dc ON p.dial_color_id = dc.dial_color_id
             ORDER BY p.product_id ASC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $products = $stmt->fetchAll();
 } catch (PDOException $e) {
-
     echo "<div class='alert alert-danger' role='alert'>Error fetching products: " . $e->getMessage() . "</div>";
     $products = [];
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -63,147 +69,139 @@ try {
             letter-spacing: 0.5px;
         }
 
-        .card {
-            background: #785A49;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(27, 45, 68, 0.20);
-            border: 1px solid #A57A5B;
-            margin-bottom: 30px;
-        }
-
-        .card-header {
-            background: #A57A5B;
-            border-bottom: 1px solid #785A49;
-            border-radius: 12px 12px 0 0;
-            padding: 15px 20px;
-            font-weight: 600;
-            color: #DED2C8;
-            font-size: 1.1rem;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
         .table {
             border-radius: 0 0 12px 12px;
             overflow: hidden;
+            border: 1px solid #A57A5B;
+            /* Add border around the whole table */
         }
 
         .table thead th {
-            background-color: #A57A5B;
+            background-color: #352826;
             color: #DED2C8;
-            font-weight: 600;
-            border-bottom: 2px solid #785A49;
+            font-weight: 400;
+            border-right: 1px solid #A57A5B;
+            /* Border between columns */
             text-transform: uppercase;
             font-size: 0.8rem;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
 
         .table tbody td {
             vertical-align: middle;
             color: #352826;
             font-size: 0.95rem;
-            border-top: 1px solid #785A49;
+            border-top: 1px solid #785A5B;
+            /* Top border for each cell */
+            border-right: 1px solid #785A5B;
+            /* Border between columns */
         }
 
         .table tbody tr:last-child td {
             border-bottom: none;
+            /* Remove bottom border for the last row */
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #A57A5B;
+            /* Optional: you can leave this to separate rows visually */
         }
 
         .table-hover tbody tr:hover {
-    background-color: #785A49;
-}
+            background-color: #785A49;
+        }
 
-.action-buttons button,
-.action-buttons a {
-    margin-right: 5px;
-    font-size: 0.9rem;
-    padding: 0.4rem 0.8rem;
-    border-radius: 5px;
-}
+        .action-buttons button,
+        .action-buttons a {
+            margin-right: 5px;
+            font-size: 1rem;
+            /* Increased button size for easier interaction */
+            padding: 0.6rem 1rem;
+            /* More padding for better usability */
+            border-radius: 5px;
+        }
 
-.action-buttons .btn-edit {
-    background-color: #A57A5B;
-    border-color: #A57A5B;
-    color: white;
-}
+        .action-buttons .btn-edit {
+            background-color: #A57A5B;
+            border-color: #A57A5B;
+            color: white;
+        }
 
-.action-buttons .btn-edit:hover {
-    background-color: #785A49;
-    border-color: #785A49;
-}
+        .action-buttons .btn-edit:hover {
+            background-color: #785A49;
+            border-color: #785A49;
+        }
 
-.action-buttons .btn-delete {
-    background-color: #e74c3c;
-    border-color: #e74c3c;
-    color: white;
-}
+        .action-buttons .btn-delete {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+        }
 
-.action-buttons .btn-delete:hover {
-    background-color: #c0392b;
-    border-color: #c0392b;
-}
+        .action-buttons .btn-delete:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
 
-.form-group {
-    margin-bottom: 15px;
-}
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-.form-label {
-    color: #DED2C8;
-    font-weight: 600;
-    font-size: 0.85rem;
-}
+        .form-label {
+            color: #DED2C8;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
 
-.form-control {
-    background: #352826;
-    border: 1px solid #A57A5B;
-    color: #DED2C8;
-    border-radius: 6px;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.95rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
+        .form-control {
+            background: #352826;
+            border: 1px solid #A57A5B;
+            color: #DED2C8;
+            border-radius: 6px;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
 
-.form-control:focus {
-    border-color: #A57A5B;
-    box-shadow: 0 0 0 2px rgba(167, 122, 91, 0.20);
-}
+        .form-control:focus {
+            border-color: #A57A5B;
+            box-shadow: 0 0 0 2px rgba(167, 122, 91, 0.20);
+        }
 
-.form-control::placeholder {
-    color: #DED2C8;
-}
+        .form-control::placeholder {
+            color: #DED2C8;
+        }
 
-.btn-primary-admin {
-    background: #A57A5B;
-    border: none;
-    color: #DED2C8;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    border-radius: 6px;
-    padding: 0.6rem 1rem;
-    transition: background 0.2s;
-}
+        .btn-primary-admin {
+            background: #A57A5B;
+            border: none;
+            color: #DED2C8;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            transition: background 0.2s;
+        }
 
-.btn-primary-admin:hover {
-    background: #785A49;
-}
+        .btn-primary-admin:hover {
+            background: #785A49;
+        }
 
-.nav-item.active>a {
-    background-color: #A57A5B !important;
-    color: #DED2C8 !important;
-    border-left: 4px solid #785A49 !important;
-}
+        .nav-item.active>a {
+            background-color: #A57A5B !important;
+            color: #DED2C8 !important;
+            border-left: 4px solid #785A49 !important;
+        }
 
-@media (max-width: 991.98px) {
-    .sidebar {
-        display: none;
-    }
+        @media (max-width: 991.98px) {
+            .sidebar {
+                display: none;
+            }
 
-    .main-content {
-        margin-left: 0;
-    }
-}
+            .main-content {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 
@@ -226,6 +224,10 @@ try {
                             <th>Product Name</th>
                             <th>Brand</th>
                             <th>Category</th>
+                            <th>Size</th>
+                            <th>Case Material</th>
+                            <th>Gender</th>
+                            <th>Dial Color</th>
                             <th>Price</th>
                             <th>Stock</th>
                             <th>Actions</th>
@@ -236,26 +238,30 @@ try {
                             <tr>
                                 <td>
                                     <?php if (!empty($product['image_url'])): ?>
-                                        <!-- Display product image -->
                                         <img src="../<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['product_name']); ?>" style="width: 100px; height: auto; border-radius: 4px;">
                                     <?php else: ?>
-                                        <!-- Placeholder if no image -->
                                         No Image
                                     <?php endif; ?>
                                 </td>
                                 <td><?php echo htmlspecialchars($product['product_name']); ?></td>
                                 <td><?php echo htmlspecialchars($product['brand_name']); ?></td>
                                 <td><?php echo htmlspecialchars($product['category_name']); ?></td>
+                                <td><?php echo htmlspecialchars($product['size_name']); ?></td>
+                                <td><?php echo htmlspecialchars($product['case_material_name']); ?></td>
+                                <td><?php echo htmlspecialchars($product['gender_name']); ?></td>
+                                <td><?php echo htmlspecialchars($product['dial_color_name']); ?></td>
                                 <td>$<?php echo number_format($product['price'], 2); ?></td>
                                 <td><?php echo $product['stock_quantity']; ?></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <!-- Edit Link -->
-                                        <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-edit btn-sm"><i class="bi bi-pencil-square"></i> Edit</a>
+                                        <!-- Edit Link with Bootstrap Icon -->
+                                        <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-edit btn-sm">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
 
                                         <!-- Delete Button (triggers modal) -->
                                         <button type="button" class="btn btn-delete btn-sm" data-bs-toggle="modal" data-bs-target="#deleteProductModal" data-product-id="<?php echo $product['product_id']; ?>" data-product-name="<?php echo htmlspecialchars($product['product_name']); ?>">
-                                            <i class="bi bi-trash"></i> Delete
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -305,7 +311,6 @@ try {
         });
 
         // --- Modal handling for delete confirmation ---
-        // When the delete button is clicked, populate the modal with product details
         document.getElementById('deleteProductModal').addEventListener('show.bs.modal', function(event) {
             // Button that triggered the modal
             const button = event.relatedTarget;
