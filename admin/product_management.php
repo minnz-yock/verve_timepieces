@@ -3,58 +3,76 @@ require_once('../admin_login_check.php');
 require_once('../dbconnect.php');
 if (!isset($_SESSION)) session_start();
 
-// ---- INSERT LOGIC ----
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'insert') {
-    $product_name = $_POST["product_name"];
-    $price = $_POST["price"];
-    $category_id = $_POST["category_id"];
-    $brand_id = $_POST["brand_id"];
-    $size_id = $_POST["size_id"];
-    $case_material_id = $_POST["case_material_id"];
-    $gender_id = $_POST["gender_id"];
-    $dial_color_id = $_POST["dial_color_id"];
-    $stock_quantity = $_POST["stock_quantity"];
-    $description = $_POST["description"];
-    $fileImage = $_FILES["product_image"];
+/* ---------- Helpers ---------- */
+function format_mm($n)
+{
+    if ($n === null || $n === '') return '—';
+    $s = number_format((float)$n, 2, '.', '');
+    $s = rtrim(rtrim($s, '0'), '.'); // 40.00->40 ; 34.30->34.3
+    return $s . ' mm';
+}
 
+/* ---------- INSERT ---------- */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'insert') {
+    $product_name     = $_POST["product_name"] ?? '';
+    $price            = $_POST["price"] ?? 0;
+    $category_id      = $_POST["category_id"] ?? null;
+    $brand_id         = $_POST["brand_id"] ?? null;
+    $case_material_id = $_POST["case_material_id"] ?? null;
+    $gender_id        = $_POST["gender_id"] ?? null;
+    $dial_color_id    = $_POST["dial_color_id"] ?? null;
+    $stock_quantity   = $_POST["stock_quantity"] ?? 0;
+    $description      = $_POST["description"] ?? '';
+    $case_size        = isset($_POST["case_size"]) ? filter_var($_POST["case_size"], FILTER_VALIDATE_FLOAT) : null;
+
+    // validate case size (mm)
+    if ($case_size === false || $case_size <= 0 || $case_size > 80) {
+        $_SESSION["error"] = "Please enter a valid case size in millimeters (e.g., 40 or 34.33).";
+        header("Location: product_management.php");
+        exit;
+    }
+
+    // image upload
     $filePath = "";
-    if (isset($fileImage) && $fileImage['error'] == 0) {
+    if (isset($_FILES["product_image"]) && $_FILES["product_image"]['error'] == 0) {
         $target_dir = "../images/product_images/";
         if (!is_dir($target_dir)) {
             mkdir($target_dir, 0777, true);
         }
-        $filename = time() . "_" . basename($fileImage['name']);
+        $filename = time() . "_" . basename($_FILES["product_image"]['name']);
         $target_file = $target_dir . $filename;
-        if (move_uploaded_file($fileImage['tmp_name'], $target_file)) {
+        if (move_uploaded_file($_FILES["product_image"]['tmp_name'], $target_file)) {
             $filePath = $target_file;
         }
     }
 
     if ($filePath !== "") {
         try {
-            $sql = "INSERT INTO products (product_name, description, price, stock_quantity, category_id, brand_id, size_id, case_material_id, gender_id, dial_color_id, image_url) 
+            // INSERT with case_size (no size_id)
+            $sql = "INSERT INTO products
+                    (product_name, description, price, stock_quantity, category_id, brand_id, image_url,
+                     case_material_id, gender_id, dial_color_id, case_size)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $flag = $stmt->execute([
+            $ok = $stmt->execute([
                 $product_name,
                 $description,
                 $price,
                 $stock_quantity,
                 $category_id,
                 $brand_id,
-                $size_id,
+                $filePath,
                 $case_material_id,
                 $gender_id,
                 $dial_color_id,
-                $filePath
+                $case_size
             ]);
-            if ($flag) {
+            if ($ok) {
                 $_SESSION["message"] = "Product inserted successfully!";
                 header("Location: product_management.php");
                 exit;
-            } else {
-                $_SESSION["error"] = "Insert failed (DB error)";
             }
+            $_SESSION["error"] = "Insert failed (DB error)";
         } catch (PDOException $e) {
             $_SESSION["error"] = "Error: " . $e->getMessage();
         }
@@ -63,25 +81,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// ---- UPDATE LOGIC ----
+/* ---------- UPDATE ---------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
-    $product_id = $_POST['product_id'];
-    $product_name = $_POST['product_name'];
-    $brand_id = $_POST['brand_id'];
-    $category_id = $_POST['category_id'];
-    $size_id = $_POST['size_id'];
+    $product_id       = $_POST['product_id'];
+    $product_name     = $_POST['product_name'];
+    $brand_id         = $_POST['brand_id'];
+    $category_id      = $_POST['category_id'];
     $case_material_id = $_POST['case_material_id'];
-    $gender_id = $_POST['gender_id'];
-    $dial_color_id = $_POST['dial_color_id'];
-    $description = $_POST['description'];
-    $price = $_POST['price'];
-    $stock_quantity = $_POST['stock_quantity'];
+    $gender_id        = $_POST['gender_id'];
+    $dial_color_id    = $_POST['dial_color_id'];
+    $description      = $_POST['description'] ?? '';
+    $price            = $_POST['price'];
+    $stock_quantity   = $_POST['stock_quantity'];
+    $case_size        = isset($_POST["case_size"]) ? filter_var($_POST["case_size"], FILTER_VALIDATE_FLOAT) : null;
 
+    if ($case_size === false || $case_size <= 0 || $case_size > 80) {
+        $_SESSION["error"] = "Please enter a valid case size in millimeters (e.g., 40 or 34.33).";
+        header("Location: product_management.php");
+        exit;
+    }
+
+    // current image
     $stmt = $conn->prepare("SELECT image_url FROM products WHERE product_id=?");
     $stmt->execute([$product_id]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
     $image_url = $product['image_url'];
 
+    // optional new image
     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == 0) {
         $target_dir = "../images/product_images/";
         if (!is_dir($target_dir)) {
@@ -95,7 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 
     try {
-        $sql = "UPDATE products SET product_name=?, description=?, price=?, stock_quantity=?, category_id=?, brand_id=?, size_id=?, case_material_id=?, gender_id=?, dial_color_id=?, image_url=? WHERE product_id=?";
+        $sql = "UPDATE products SET
+                    product_name=?, description=?, price=?, stock_quantity=?, category_id=?, brand_id=?,
+                    case_material_id=?, gender_id=?, dial_color_id=?, image_url=?, case_size=?
+                WHERE product_id=?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             $product_name,
@@ -104,11 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stock_quantity,
             $category_id,
             $brand_id,
-            $size_id,
             $case_material_id,
             $gender_id,
             $dial_color_id,
             $image_url,
+            $case_size,
             $product_id
         ]);
         $_SESSION['updateSuccess'] = "Product updated successfully!";
@@ -119,29 +148,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// ---- FETCH DROPDOWNS AND PRODUCTS ----
+/* ---------- FETCH DROPDOWNS & PRODUCTS ---------- */
 try {
-    $catStmt = $conn->prepare("SELECT * FROM categories");
+    $catStmt = $conn->prepare("SELECT * FROM categories ORDER BY cat_name");
     $catStmt->execute();
     $categories = $catStmt->fetchAll();
 
-    $brandStmt = $conn->prepare("SELECT * FROM brands");
+    $brandStmt = $conn->prepare("SELECT * FROM brands ORDER BY brand_name");
     $brandStmt->execute();
     $brands = $brandStmt->fetchAll();
 
-    $sizeStmt = $conn->prepare("SELECT * FROM sizes");
-    $sizeStmt->execute();
-    $sizes = $sizeStmt->fetchAll();
-
-    $caseStmt = $conn->prepare("SELECT * FROM case_materials");
+    $caseStmt = $conn->prepare("SELECT * FROM case_materials ORDER BY material");
     $caseStmt->execute();
     $case_materials = $caseStmt->fetchAll();
 
-    $genderStmt = $conn->prepare("SELECT * FROM genders");
+    $genderStmt = $conn->prepare("SELECT * FROM genders ORDER BY gender");
     $genderStmt->execute();
     $genders = $genderStmt->fetchAll();
 
-    $dialStmt = $conn->prepare("SELECT * FROM dial_colors");
+    $dialStmt = $conn->prepare("SELECT * FROM dial_colors ORDER BY dial_color");
     $dialStmt->execute();
     $dial_colors = $dialStmt->fetchAll();
 } catch (PDOException $e) {
@@ -150,6 +175,7 @@ try {
 }
 
 try {
+    // Select case_size and drop sizes join entirely
     $sql = "SELECT 
                 p.product_id,
                 p.product_name,
@@ -157,14 +183,13 @@ try {
                 p.stock_quantity,
                 c.cat_name AS category_name,
                 b.brand_name AS brand_name,
-                s.size AS size_name,
+                p.case_size,
                 cm.material AS case_material_name,
                 g.gender AS gender_name,
                 dc.dial_color AS dial_color_name,
                 p.image_url,
                 p.category_id,
                 p.brand_id,
-                p.size_id,
                 p.case_material_id,
                 p.gender_id,
                 p.dial_color_id,
@@ -172,7 +197,6 @@ try {
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id
-            LEFT JOIN sizes s ON p.size_id = s.size_id
             LEFT JOIN case_materials cm ON p.case_material_id = cm.case_material_id
             LEFT JOIN genders g ON p.gender_id = g.gender_id
             LEFT JOIN dial_colors dc ON p.dial_color_id = dc.dial_color_id
@@ -185,15 +209,7 @@ try {
     $products = [];
 }
 
-function getPrev($array, $idKey, $nameKey, $currentId)
-{
-    foreach ($array as $a) {
-        if ($a[$idKey] == $currentId) return $a[$nameKey];
-    }
-    return '';
-}
-
-// Flash message logic for UI (optional improvement)
+/* ---------- Flash ---------- */
 $flash = null;
 if (!empty($_SESSION['message'])) {
     $flash = ['type' => 'success', 'msg' => $_SESSION['message']];
@@ -204,11 +220,10 @@ if (!empty($_SESSION['updateSuccess'])) {
     unset($_SESSION['updateSuccess']);
 }
 if (!empty($_SESSION['error'])) {
-    $flash = ['type' => 'danger', 'msg' => $_SESSION['error']];
+    $flash = ['type' => 'danger',  'msg' => $_SESSION['error']];
     unset($_SESSION['error']);
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -290,13 +305,12 @@ if (!empty($_SESSION['error'])) {
             height: 50px;
             object-fit: cover;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
         }
 
-        .action-buttons button,
-        .action-buttons a {
-            font-size: 0.9rem;
-            padding: 0.5rem 0.9rem;
+        .action-buttons button {
+            font-size: .9rem;
+            padding: .5rem .9rem;
             border-radius: 5px;
             margin-right: 5px;
         }
@@ -304,11 +318,11 @@ if (!empty($_SESSION['error'])) {
         .action-buttons .btn-edit {
             background-color: #785A49;
             border-color: #785A49;
-            color: #352826;;
+            color: #352826;
         }
 
         .action-buttons .btn-edit:hover {
-            background-color: #DED2C8;;
+            background-color: #DED2C8;
             border-color: #A57A5B;
         }
 
@@ -323,7 +337,6 @@ if (!empty($_SESSION['error'])) {
             border-color: #DED2C8;
         }
 
-        /* MODAL DESIGN */
         .modal-header,
         .modal-footer {
             background-color: #352826;
@@ -346,7 +359,7 @@ if (!empty($_SESSION['error'])) {
         .form-control:focus,
         .form-select:focus {
             border-color: #785A49;
-            box-shadow: 0 0 0 0.25rem rgba(120, 90, 73, 0.25);
+            box-shadow: 0 0 0 .25rem rgba(120, 90, 73, .25);
         }
 
         .product-image-preview {
@@ -368,9 +381,8 @@ if (!empty($_SESSION['error'])) {
             color: #DED2C8 !important;
         }
 
-        /* A more compact modal body layout */
         .modal-body .row>div {
-            padding: 0.5rem;
+            padding: .5rem;
         }
 
         .modal-body label {
@@ -382,6 +394,15 @@ if (!empty($_SESSION['error'])) {
                 margin-left: 0;
             }
         }
+
+        .input-group-text {
+            background: #fff;
+            border-left: 0;
+        }
+
+        .input-mm input {
+            border-right: 0;
+        }
     </style>
 </head>
 
@@ -390,8 +411,8 @@ if (!empty($_SESSION['error'])) {
 
     <div class="main-content">
         <div class="d-flex align-items-center justify-content-between mb-3">
-            <h1 class="m-0"><i class="fa-solid fa-clock-rotate-left me-2"></i>Product Management</h1>
-            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <h1 class="m-0"><i class="bi bi-tags me-2"></i>Product Management</h1>
+            <button class="btn btn-primary-custom" type="button" data-bs-toggle="modal" data-bs-target="#addProductModal">
                 <i class="fa fa-plus me-1"></i> Add New Product
             </button>
         </div>
@@ -416,7 +437,7 @@ if (!empty($_SESSION['error'])) {
                                 <th>Stock</th>
                                 <th>Brand</th>
                                 <th>Category</th>
-                                <th>Size</th>
+                                <th>Case size (mm)</th>
                                 <th>Case Material</th>
                                 <th>Gender</th>
                                 <th>Dial Color</th>
@@ -435,39 +456,46 @@ if (!empty($_SESSION['error'])) {
                                         <td>
                                             <?php if ($p['image_url']): ?>
                                                 <img src="<?= htmlspecialchars($p['image_url']) ?>" class="product-image-thumbnail" alt="Product Image">
-                                            <?php else: ?>
-                                                <i class="fas fa-image text-muted"></i>
-                                            <?php endif; ?>
+                                            <?php else: ?><i class="fas fa-image text-muted"></i><?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($p['product_name']) ?></td>
                                         <td>$<?= number_format($p['price'], 2) ?></td>
                                         <td><?= htmlspecialchars($p['stock_quantity']) ?></td>
                                         <td><?= htmlspecialchars($p['brand_name']) ?></td>
                                         <td><?= htmlspecialchars($p['category_name']) ?></td>
-                                        <td><?= htmlspecialchars($p['size_name']) ?></td>
+                                        <td><?= htmlspecialchars(format_mm($p['case_size'])) ?></td>
                                         <td><?= htmlspecialchars($p['case_material_name']) ?></td>
                                         <td><?= htmlspecialchars($p['gender_name']) ?></td>
                                         <td><?= htmlspecialchars($p['dial_color_name']) ?></td>
                                         <td class="action-buttons">
-                                            <button class="btn btn-edit btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#editProductModal"
-                                                data-id="<?= htmlspecialchars($p['product_id']) ?>"
-                                                data-name="<?= htmlspecialchars($p['product_name']) ?>"
-                                                data-price="<?= htmlspecialchars($p['price']) ?>"
-                                                data-stock="<?= htmlspecialchars($p['stock_quantity']) ?>"
-                                                data-brand-id="<?= htmlspecialchars($p['brand_id']) ?>"
-                                                data-category-id="<?= htmlspecialchars($p['category_id']) ?>"
-                                                data-size-id="<?= htmlspecialchars($p['size_id']) ?>"
-                                                data-case-id="<?= htmlspecialchars($p['case_material_id']) ?>"
-                                                data-gender-id="<?= htmlspecialchars($p['gender_id']) ?>"
-                                                data-dial-id="<?= htmlspecialchars($p['dial_color_id']) ?>"
-                                                data-image-url="<?= htmlspecialchars($p['image_url']) ?>">
+                                            <button
+                                                type="button"
+                                                class="btn btn-edit btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editProductModal"
+                                                data-id="<?= (int)$p['product_id'] ?>"
+                                                data-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
+                                                data-price="<?= htmlspecialchars($p['price'], ENT_QUOTES) ?>"
+                                                data-stock="<?= htmlspecialchars($p['stock_quantity'], ENT_QUOTES) ?>"
+                                                data-brand-id="<?= (int)$p['brand_id'] ?>"
+                                                data-category-id="<?= (int)$p['category_id'] ?>"
+                                                data-case-size="<?= htmlspecialchars($p['case_size'], ENT_QUOTES) ?>"
+                                                data-case-id="<?= (int)$p['case_material_id'] ?>"
+                                                data-gender-id="<?= (int)$p['gender_id'] ?>"
+                                                data-dial-id="<?= (int)$p['dial_color_id'] ?>"
+                                                data-image-url="<?= htmlspecialchars($p['image_url'], ENT_QUOTES) ?>"
+                                                aria-label="Edit product <?= (int)$p['product_id'] ?>">
                                                 <i class="fa fa-pen-to-square"></i>
                                             </button>
-                                            <button class="btn btn-delete btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#deleteProductModal"
-                                                data-product-id="<?= htmlspecialchars($p['product_id']) ?>"
-                                                data-product-name="<?= htmlspecialchars($p['product_name']) ?>">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-delete btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteProductModal"
+                                                data-product-id="<?= (int)$p['product_id'] ?>"
+                                                data-product-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
+                                                aria-label="Delete product <?= (int)$p['product_id'] ?>">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </td>
@@ -504,6 +532,7 @@ if (!empty($_SESSION['error'])) {
                             <label class="form-label" for="stock_quantity_add">Stock</label>
                             <input type="number" class="form-control" id="stock_quantity_add" name="stock_quantity" required>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="brand_id_add">Brand</label>
                             <select class="form-select" id="brand_id_add" name="brand_id" required>
@@ -522,15 +551,17 @@ if (!empty($_SESSION['error'])) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
+                        <!-- Numeric case size input with 'mm' suffix -->
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="size_id_add">Size</label>
-                            <select class="form-select" id="size_id_add" name="size_id" required>
-                                <option value="" selected disabled>-- Select Size --</option>
-                                <?php foreach ($sizes as $size): ?>
-                                    <option value="<?= htmlspecialchars($size['size_id']) ?>"><?= htmlspecialchars($size['size']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <label class="form-label" for="case_size_add">Case size</label>
+                            <div class="input-group input-mm">
+                                <input type="number" class="form-control" id="case_size_add" name="case_size" step="0.01" min="10" max="80" placeholder="e.g., 40 or 34.33" required>
+                                <span class="input-group-text">mm</span>
+                            </div>
+                            <small class="text-muted">Enter millimeters; decimals allowed.</small>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="case_material_id_add">Case Material</label>
                             <select class="form-select" id="case_material_id_add" name="case_material_id" required>
@@ -540,6 +571,7 @@ if (!empty($_SESSION['error'])) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="gender_id_add">Gender</label>
                             <select class="form-select" id="gender_id_add" name="gender_id" required>
@@ -558,6 +590,7 @@ if (!empty($_SESSION['error'])) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="product_image_add">Product Image</label>
                             <input type="file" class="form-control" id="product_image_add" name="product_image" required>
@@ -596,6 +629,7 @@ if (!empty($_SESSION['error'])) {
                             <label class="form-label" for="stock_quantity_edit">Stock</label>
                             <input type="number" class="form-control" id="stock_quantity_edit" name="stock_quantity" required>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="brand_id_edit">Brand</label>
                             <select class="form-select" id="brand_id_edit" name="brand_id" required>
@@ -612,14 +646,15 @@ if (!empty($_SESSION['error'])) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="size_id_edit">Size</label>
-                            <select class="form-select" id="size_id_edit" name="size_id" required>
-                                <?php foreach ($sizes as $size): ?>
-                                    <option value="<?= htmlspecialchars($size['size_id']) ?>"><?= htmlspecialchars($size['size']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <label class="form-label" for="case_size_edit">Case size</label>
+                            <div class="input-group input-mm">
+                                <input type="number" class="form-control" id="case_size_edit" name="case_size" step="0.01" min="10" max="80" required>
+                                <span class="input-group-text">mm</span>
+                            </div>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="case_material_id_edit">Case Material</label>
                             <select class="form-select" id="case_material_id_edit" name="case_material_id" required>
@@ -628,6 +663,7 @@ if (!empty($_SESSION['error'])) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="gender_id_edit">Gender</label>
                             <select class="form-select" id="gender_id_edit" name="gender_id" required>
@@ -644,9 +680,10 @@ if (!empty($_SESSION['error'])) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="product_image_edit">Product Image</label>
-                            <img id="current_image_preview" src="" alt="Product Image" class="product-image-preview">
+                            <img id="current_image_preview" src="" alt="Product Image" class="product-image-preview" style="display:none;">
                             <input type="file" class="form-control" id="product_image_edit" name="product_image">
                             <small style="color:#A57A5B;">Leave blank to keep the current image.</small>
                         </div>
@@ -689,58 +726,61 @@ if (!empty($_SESSION['error'])) {
             // Highlight active menu item
             const currentFile = window.location.pathname.split('/').pop();
             document.querySelectorAll('.sidebar ul li a').forEach(link => {
-                if (link.getAttribute('href').includes(currentFile)) {
-                    link.classList.add('active');
-                }
+                if (link.getAttribute('href').includes(currentFile)) link.classList.add('active');
             });
 
-            // Handle delete modal data population
+            // Delete modal data
             const deleteModal = document.getElementById('deleteProductModal');
             deleteModal.addEventListener('show.bs.modal', event => {
                 const button = event.relatedTarget;
                 const productId = button.getAttribute('data-product-id');
                 const productName = button.getAttribute('data-product-name');
                 const modal = event.currentTarget;
-                modal.querySelector('#productToDeleteName').textContent = productName;
-                modal.querySelector('#productToDeleteId').value = productId;
+                modal.querySelector('#productToDeleteName').textContent = productName || '';
+                modal.querySelector('#productToDeleteId').value = productId || '';
             });
 
-            // Handle edit modal data population
+            // Edit modal data (pre-fill all fields, including selects and image)
             const editModal = document.getElementById('editProductModal');
             editModal.addEventListener('show.bs.modal', event => {
                 const button = event.relatedTarget;
-                const id = button.getAttribute('data-id');
-                const name = button.getAttribute('data-name');
-                const price = button.getAttribute('data-price');
-                const stock = button.getAttribute('data-stock');
-                const brandId = button.getAttribute('data-brand-id');
-                const categoryId = button.getAttribute('data-category-id');
-                const sizeId = button.getAttribute('data-size-id');
-                const caseId = button.getAttribute('data-case-id');
-                const genderId = button.getAttribute('data-gender-id');
-                const dialId = button.getAttribute('data-dial-id');
-                const imageUrl = button.getAttribute('data-image-url');
+                if (!button) return;
 
-                const modal = event.currentTarget;
+                // read data-* via dataset
+                const id = button.dataset.id || '';
+                const name = button.dataset.name || '';
+                const price = button.dataset.price || '';
+                const stock = button.dataset.stock || '';
+                const brandId = button.dataset.brandId || '';
+                const categoryId = button.dataset.categoryId || '';
+                const caseSize = button.dataset.caseSize || '';
+                const caseId = button.dataset.caseId || '';
+                const genderId = button.dataset.genderId || '';
+                const dialId = button.dataset.dialId || '';
+                const imageUrl = button.dataset.imageUrl || '';
+
+                const modal = editModal;
                 modal.querySelector('#product_id_edit').value = id;
                 modal.querySelector('#product_name_edit').value = name;
                 modal.querySelector('#price_edit').value = price;
                 modal.querySelector('#stock_quantity_edit').value = stock;
 
-                // Pre-select dropdowns
-                modal.querySelector('#brand_id_edit').value = brandId;
-                modal.querySelector('#category_id_edit').value = categoryId;
-                modal.querySelector('#size_id_edit').value = sizeId;
-                modal.querySelector('#case_material_id_edit').value = caseId;
-                modal.querySelector('#gender_id_edit').value = genderId;
-                modal.querySelector('#dial_color_id_edit').value = dialId;
+                const sel = (q) => modal.querySelector(q);
+                sel('#brand_id_edit').value = brandId;
+                sel('#category_id_edit').value = categoryId;
+                sel('#case_material_id_edit').value = caseId;
+                sel('#gender_id_edit').value = genderId;
+                sel('#dial_color_id_edit').value = dialId;
 
-                // Update image preview
+                modal.querySelector('#case_size_edit').value = caseSize;
+
                 const imagePreview = modal.querySelector('#current_image_preview');
                 if (imageUrl && imageUrl !== 'null') {
                     imagePreview.src = imageUrl;
                     imagePreview.style.display = 'block';
+                    imagePreview.alt = name || 'Product Image';
                 } else {
+                    imagePreview.removeAttribute('src');
                     imagePreview.style.display = 'none';
                 }
             });

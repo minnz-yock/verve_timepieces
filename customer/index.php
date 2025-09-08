@@ -1,7 +1,10 @@
 <?php
+ require_once('../user_login_check.php');
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+   
+}
 
-require_once('../user_login_check.php');
-// session_start();
 
 
 ?>
@@ -14,12 +17,12 @@ require_once('../user_login_check.php');
     <title>Verve Timepieces - Home</title>
     <meta name="description" content="Verve Timepieces - Modern, unique watches with energy and style.">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-        crossorigin="anonymous">
-    <!-- Bootstrap Icons CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"> <!-- for bi-search, bi-cart3 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
         .watch-feature-section {
             display: flex;
@@ -28,10 +31,11 @@ require_once('../user_login_check.php');
             margin: 0 auto 3rem auto;
             border-radius: 0 0 8px 8px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
             position: relative;
             z-index: 2;
         }
+
         .watch-feature-side {
             flex: 1 1 0;
             display: flex;
@@ -41,13 +45,17 @@ require_once('../user_login_check.php');
             color: #fff;
             min-width: 0;
         }
+
         .watch-feature-left {
-            background: #3a2517; /* dark brown */
+            background: #3a2517;
+            /* dark brown */
             flex-direction: column;
             text-align: center;
         }
+
         .watch-feature-right {
-            background: #e7d4c0; /* soft brown */
+            background: #e7d4c0;
+            /* soft brown */
             color: #2f1b0b;
             flex-direction: column;
             text-align: center;
@@ -63,6 +71,7 @@ require_once('../user_login_check.php');
             align-items: center;
             justify-content: center;
         }
+
         .watch-feature-watch {
             position: relative;
             width: 230px;
@@ -73,6 +82,7 @@ require_once('../user_login_check.php');
             transition: filter 0.3s;
             cursor: pointer;
         }
+
         .watch-feature-watch img {
             width: 100%;
             height: auto;
@@ -81,12 +91,16 @@ require_once('../user_login_check.php');
             pointer-events: none;
             user-select: none;
         }
+
         .watch-feature-watch-overlay {
             position: absolute;
             margin-top: 330px;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             color: #fff;
-            opacity: 0; 
+            opacity: 0;
             pointer-events: none;
             display: flex;
             flex-direction: column;
@@ -96,12 +110,13 @@ require_once('../user_login_check.php');
             transition: opacity 0.3s;
             z-index: 7;
         }
+
         .watch-feature-watch:hover .watch-feature-watch-overlay,
         .watch-feature-watch:focus .watch-feature-watch-overlay {
             opacity: 1;
             pointer-events: all;
         }
-       
+
         .watch-feature-watch-overlay a {
             background: #785A49;
             color: #DED2C8;
@@ -111,9 +126,9 @@ require_once('../user_login_check.php');
             text-decoration: none;
             font-size: 14px;
             font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-     
+
         }
-     
+
 
         @media (max-width: 991px) {
             .watch-feature-section {
@@ -121,23 +136,28 @@ require_once('../user_login_check.php');
                 min-height: 600px;
                 border-radius: 0 0 24px 24px;
             }
+
             .watch-feature-side {
                 min-height: 200px;
             }
+
             .watch-feature-watch-holder {
                 position: static;
                 transform: none;
                 margin: 1.5rem auto 0 auto;
             }
         }
+
         @media (max-width: 575px) {
             .watch-feature-section {
                 min-height: 440px;
             }
+
             .watch-feature-watch {
                 width: 160px;
                 height: 220px;
             }
+
             .watch-feature-side {
                 padding: 1rem 0.5rem;
             }
@@ -147,20 +167,21 @@ require_once('../user_login_check.php');
 
 <body>
 
-    <!-- Include the navigation bar -->
-    <?php include 'navbarnew.php'; ?>
+    <div class="row">
+        <?php include 'navbarnew.php'; ?>
+    </div>
 
     <!-- Watch Feature Section (Below Navigation) -->
     <section class="watch-feature-section position-relative mb-5 mt-0">
         <div class="watch-feature-side watch-feature-left d-flex flex-column justify-content-center align-items-center">
             <div>
                 <h3 class="fw-bold mb-4">EXPLORE THE WORLD'S<br>LARGEST WATCH FINDER</h3>
-                <a href="viewproducts.php" class="btn btn-light px-4 py-2 fw-semibold">EXPLORE</a>
+                <a href="view_products.php" class="btn btn-light px-4 py-2 fw-semibold">EXPLORE</a>
             </div>
         </div>
         <div class="watch-feature-watch-holder">
             <div class="watch-feature-watch" tabindex="0">
-                <img src="/images/product_images/Tudor_Black_Bay_Fifty_Eight_Bronze.png" alt="Tudor Bronze Watch" style="height: 450px; width:450px;" >
+                <img src="/images/product_images/Tudor_Black_Bay_Fifty_Eight_Bronze.png" alt="Tudor Bronze Watch" style="height: 450px; width:450px;">
                 <div class="watch-feature-watch-overlay">
                     <a href="product-verve-x.php">Tudor Black Bay Fifty Eight Bronze</a>
                 </div>
