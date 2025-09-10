@@ -303,17 +303,15 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
                     <div class="price"><?= money($product['price']) ?></div>
 
                     <div class="d-flex gap-2">
-                        <form action="add_to_cart.php" method="post" class="d-inline">
-                            <input type="hidden" name="product_id" value="<?= (int)$product['product_id'] ?>">
-                            <button class="btn btn-bag px-5 py-3" type="submit" <?= $outOfStock ? 'disabled' : '' ?>>
-                                ADD TO BAG
-                            </button>
-                        </form>
+                        <button class="btn btn-bag px-5 py-3 js-add-to-bag" type="button" data-id="<?= (int)$product['product_id'] ?>" <?= $outOfStock ? 'disabled' : '' ?>>
+                            ADD TO BAG
+                        </button>
                         <button class="btn btn-fav px-4 py-3 js-fav-one <?= $isFav ? 'btn-dark text-white' : '' ?>"
                             data-id="<?= (int)$product['product_id'] ?>" type="button" aria-label="Toggle favorite">
                             <i class="<?= $isFav ? 'fa-solid' : 'fa-regular' ?> fa-heart"></i>
                         </button>
                     </div>
+                    <div id="add-to-bag-message" class="mt-2 text-danger fw-bold"></div>
 
                     <?php if ($outOfStock): ?>
                         <div class="stock-msg">Out of Stock</div>
@@ -460,6 +458,46 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
                 }
             });
         });
+        // for add to card
+        // At the end of your script block in product_details.php
+        document.querySelector('.js-add-to-bag')?.addEventListener('click', async function() {
+            const productId = this.dataset.id;
+            const messageDiv = document.getElementById('add-to-bag-message');
+            messageDiv.textContent = ''; // Clear previous messages
+            messageDiv.classList.remove('d-block');
+
+            const fd = new FormData();
+            fd.append('product_id', productId);
+
+            const response = await fetch('add_to_cart.php', {
+                method: 'POST',
+                body: fd
+            });
+            const result = await response.json();
+
+            if (result.ok) {
+                updateBagBadge(result.cart_count);
+                // Display success message or hide the div
+                messageDiv.textContent = 'Product added to your bag!';
+                messageDiv.classList.add('text-success', 'd-block');
+            } else {
+                messageDiv.textContent = result.message;
+                messageDiv.classList.add('text-danger', 'd-block');
+            }
+        });
+
+        // Helper function to update the bag badge
+        function updateBagBadge(n) {
+            const b = document.getElementById('bagCountBadge');
+            if (!b) return;
+            if (n > 0) {
+                b.textContent = n;
+                b.classList.remove('d-none');
+            } else {
+                b.textContent = '';
+                b.classList.add('d-none');
+            }
+        }
     </script>
 </body>
 

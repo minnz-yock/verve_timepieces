@@ -5,10 +5,20 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once "../dbconnect.php";
 require_once "favorites_util.php";
 $favCount = fav_count($conn);
+
+// Count cart items for the badge
+$session_id = session_id();
+$user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+// $cart_count_stmt = $conn->prepare("SELECT COUNT(*) FROM cart WHERE user_id = ? OR session_id = ?");
+$cart_count_stmt = $conn->prepare(
+    "SELECT COALESCE(SUM(quantity),0) FROM cart WHERE (user_id = ? OR session_id = ?)"
+);
+$cart_count_stmt->execute([$user_id, $session_id]);
+$cartCount = $cart_count_stmt->fetchColumn();
+
 ?>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-        <!-- Logo -->
         <a class="navbar-brand" href="index.php">
             <img src="../images/logo_image/logo1.png" alt="Verve Timepieces Logo">
         </a>
@@ -19,7 +29,6 @@ $favCount = fav_count($conn);
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <!-- Left links -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link active" href="homepage.php">Home</a></li>
 
@@ -51,7 +60,6 @@ $favCount = fav_count($conn);
                 <li class="nav-item"><a class="nav-link" href="services.php">Services</a></li>
             </ul>
 
-            <!-- Search -->
             <form class="d-flex me-auto ms-3 search-form" role="search" method="GET" action="search.php">
                 <div class="input-group">
                     <input class="form-control search-input" type="search" name="q" placeholder="Search Watches..." aria-label="Search">
@@ -61,7 +69,6 @@ $favCount = fav_count($conn);
                 </div>
             </form>
 
-            <!-- Right icons -->
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <?php if (!empty($_SESSION['user_id'])): ?>
                     <li class="nav-item dropdown">
@@ -95,13 +102,15 @@ $favCount = fav_count($conn);
                     </li>
                 <?php endif; ?>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="cart.php" title="Cart">
-                        <i class="bi bi-cart3" style="font-size: 1.5rem;"></i>
-                    </a>
+                <li class="nav-item position-relative">
+                    <button class="nav-link" data-bs-toggle="modal" data-bs-target="#shoppingBagModal" aria-label="Shopping Bag">
+                        <i class="bi bi-bag" style="font-size: 1.5rem;"></i>
+                        <span id="bagCountBadge" class="bag-badge badge rounded-pill bg-dark <?= $cartCount ? '' : 'd-none' ?>">
+                            <?= $cartCount ?: '' ?>
+                        </span>
+                    </button>
                 </li>
 
-                <!-- Favorites -->
                 <li class="nav-item position-relative">
                     <a class="nav-link fav-link" href="my_favorites.php" title="Favorites">
                         <i class="fa-regular fa-heart"></i>
@@ -257,6 +266,99 @@ $favCount = fav_count($conn);
         padding: .25em .4em;
     }
 
+    .bag-badge {
+        position: absolute;
+        top: 2px;
+        right: 6px;
+        transform: translate(40%, -40%);
+        font-size: .65rem;
+        line-height: 1;
+        padding: .25em .4em;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #ddd;
+    }
+
+    .bag-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .bag-item:last-child {
+        border-bottom: none;
+    }
+
+    .bag-item-img {
+        width: 60px;
+        height: 60px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+    }
+
+    .bag-item-img img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .bag-item-details {
+        flex-grow: 1;
+    }
+
+    .bag-item-details .brand-name {
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: .9rem;
+    }
+
+    .bag-item-details .product-name {
+        font-weight: 500;
+        font-size: .85rem;
+        color: #555;
+    }
+
+    .bag-item-details .qty-price {
+        font-size: .85rem;
+        color: #555;
+        margin-top: 4px;
+    }
+
+    .modal-footer .total-price {
+        font-size: 1.1rem;
+    }
+
+    .btn-checkout {
+        background: #222;
+        color: #fff;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 8px 24px;
+        text-transform: uppercase;
+    }
+
+    .modal-body-empty {
+        text-align: center;
+        padding: 30px;
+        color: #888;
+    }
+
     @media (max-width: 991px) {
         .dropdown-menu.multi-column-dropdown {
             width: 100%;
@@ -280,3 +382,110 @@ $favCount = fav_count($conn);
         }
     }
 </style>
+
+<div class="modal fade" id="shoppingBagModal" tabindex="-1" aria-labelledby="shoppingBagModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between align-items-center">
+                <h5 class="modal-title" id="shoppingBagModalLabel">Shopping Bag</h5>
+                <!-- <a href="cart.php" class="btn btn-link">View Bag</a> -->
+                <div class="modal-footer">
+                    <a href="card.php" id="checkoutBtn" class="btn btn-dark w-100">
+                        <i class="bi bi-bag me-2"></i> View Bag
+                    </a>
+                </div>
+            </div>
+            <div class="modal-body p-4">
+                <div id="bag-modal-body">
+                    <div class="text-center text-muted">Your Shopping Bag is empty.</div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between align-items-center">
+                <div class="total-price">
+                    <strong>Total:</strong>
+                    <span id="bag-total-price">$0.00</span>
+                </div>
+                <a href="cart.php" class="btn btn-checkout">
+                    <i class="bi bi-bag-fill me-2"></i> Checkout
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateBagBadge(n) {
+        const b = document.getElementById('bagCountBadge');
+        if (!b) return;
+        if (n > 0) {
+            b.textContent = n;
+            b.classList.remove('d-none');
+        } else {
+            b.textContent = '';
+            b.classList.add('d-none');
+        }
+    }
+
+    function formatMoney(amount) {
+        return '$' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+
+    async function fetchBagData() {
+        
+            try {
+                const res = await fetch('get_card_data.php'); // match actual filename
+                if (!res.ok) throw new Error('Failed to load cart');
+                const data = await res.json();
+
+                // TODO: render the full cart table/list here
+                // e.g., document.getElementById('cart-container').innerHTML = renderCartHTML(data);
+
+            } catch (e) {
+                document.getElementById('cart-container').innerHTML =
+                    '<div class="text-danger">Could not load your cart.</div>';
+                console.error(e);
+            }
+
+
+        document.addEventListener('DOMContentLoaded', fetchBagData);
+
+        const response = await fetch('get_card_data.php');
+        const data = await response.json();
+        const modalBody = document.getElementById('bag-modal-body');
+        const totalFooter = document.getElementById('bag-total-price');
+        const checkoutBtn = document.querySelector('.btn-checkout');
+
+        if (data.items.length === 0) {
+            modalBody.innerHTML = '<div class="modal-body-empty">Your Shopping Bag is empty.</div>';
+            totalFooter.textContent = '$0.00';
+            checkoutBtn.classList.add('d-none');
+        } else {
+            let itemsHtml = '';
+            data.items.forEach(item => {
+                itemsHtml += `
+                    <div class="bag-item">
+                        <div class="bag-item-img">
+                            <img src="${item.image_url || '../images/placeholder_watch.png'}" alt="${item.product_name}">
+                        </div>
+                        <div class="bag-item-details">
+                            <div class="brand-name">${item.brand_name}</div>
+                            <div class="product-name">${item.product_name}</div>
+                            <div class="qty-price">
+                                Qty: ${item.quantity} | ${formatMoney(item.price)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            modalBody.innerHTML = itemsHtml;
+            totalFooter.textContent = formatMoney(data.total);
+            checkoutBtn.classList.remove('d-none');
+        }
+        updateBagBadge(data.items.length);
+    }
+
+    // Call fetchBagData when the modal is about to be shown
+    document.getElementById('shoppingBagModal').addEventListener('show.bs.modal', function() {
+        fetchBagData();
+    });
+</script>
