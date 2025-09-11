@@ -222,9 +222,9 @@ function mm($n)
                                 <span>Total</span>
                                 <span id="cart-total">${formatMoney(subtotal)}</span>
                             </div>
-                            <button class="btn btn-checkout w-100 mt-4">
+                            <a href="checkout.php" class="btn btn-checkout w-100 mt-4">
                                 <i class="fa-solid fa-lock"></i> PROCEED TO CHECKOUT
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -411,7 +411,7 @@ $cartCount = $cart_count_stmt->fetchColumn();
                     <strong>Total:</strong>
                     <span id="bag-total-price">$0.00</span>
                 </div>
-                <a href="cart.php" class="btn btn-checkout">
+                <a href="checkout.php" class="btn btn-checkout">
                     <i class="bi bi-bag-fill me-2"></i> Checkout
                 </a>
             </div>
