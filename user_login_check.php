@@ -1,5 +1,9 @@
 <?php
-session_start();
+// session_start();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!isset($_SESSION['username'])) {
     // from customer/* pages this must jump back to the project root

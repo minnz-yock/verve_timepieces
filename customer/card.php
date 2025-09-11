@@ -31,7 +31,7 @@ function mm($n)
     <style>
         body {
             font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-            color: #222;
+            color: #352826;
             background: #fdfdfd;
         }
 
@@ -52,13 +52,13 @@ function mm($n)
             align-items: center;
             gap: 24px;
             padding: 16px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #DED2C8;
         }
 
         .cart-item-img {
             width: 120px;
             height: 120px;
-            border: 1px solid #eee;
+            border: 1px solid #DED2C8;
             border-radius: 8px;
             display: grid;
             place-items: center;
@@ -75,22 +75,11 @@ function mm($n)
             flex-grow: 1;
         }
 
-        .item-details .brand {
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
+        .item-details .brand { font-weight: 700; font-size: 1.1rem; color: #352826; }
 
-        .item-details .model {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #555;
-        }
+        .item-details .model { font-weight: 600; font-size: 1rem; color: #785A49; }
 
-        .item-details .price {
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-top: 8px;
-        }
+        .item-details .price { font-weight: 700; font-size: 1.2rem; margin-top: 8px; color: #352826; }
 
         .remove-btn {
             color: #888;
@@ -100,7 +89,7 @@ function mm($n)
 
         .order-summary {
             background: #fafafa;
-            border: 1px solid #eee;
+            border: 1px solid #DED2C8;
             padding: 24px;
             border-radius: 8px;
         }
@@ -123,22 +112,12 @@ function mm($n)
             margin-top: 24px;
         }
 
-        .btn-checkout {
-            background: #222;
-            color: #fff;
-            font-weight: 600;
-            padding: 12px 24px;
-        }
+        .btn-checkout { background: #352826; color: #fff; font-weight: 600; padding: 12px 24px; }
 
-        .btn-return {
-            background: #555;
-            color: #fff;
-            font-weight: 600;
-            padding: 12px 24px;
-        }
+        .btn-return { background: #785A49; color: #fff; font-weight: 600; padding: 12px 24px; }
 
         .empty-cart-message {
-            border: 1px solid #eee;
+            border: 1px solid #DED2C8;
             padding: 48px;
             text-align: center;
             border-radius: 8px;
@@ -163,7 +142,7 @@ function mm($n)
         async function fetchCartData() {
 
             try {
-                const res = await fetch('get_card_data.php'); // match actual filename
+                const res = await fetch('get_cart_data.php'); // match actual filename
                 if (!res.ok) throw new Error('Failed to load cart');
                 const data = await res.json();
 
@@ -179,7 +158,7 @@ function mm($n)
 
             document.addEventListener('DOMContentLoaded', fetchBagData);
 
-            const response = await fetch('get_card_data.php');
+            const response = await fetch('get_cart_data.php');
             const data = await response.json();
             renderCart(data);
         }

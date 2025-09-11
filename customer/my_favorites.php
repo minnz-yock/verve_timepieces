@@ -39,6 +39,7 @@ if ($ids) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
   <style>
+    body { color: #352826; }
     .page {
       max-width: 1200px;
       margin: 0 auto;
@@ -55,7 +56,7 @@ if ($ids) {
     .imgbox {
       width: 100%;
       aspect-ratio: 1/1;
-      border: 1px solid #eee;
+      border: 1px solid #DED2C8;
       border-radius: 12px;
       display: grid;
       place-items: center;
@@ -78,19 +79,14 @@ if ($ids) {
       margin-top: .65rem;
       font-weight: 800;
       letter-spacing: .6px;
+      color: #352826;
       text-transform: uppercase;
       text-align: center;
     }
 
-    .model {
-      font-weight: 600;
-      text-align: center;
-    }
+    .model { font-weight: 600; text-align: center; color: #785A49; }
 
-    .price {
-      font-weight: 700;
-      text-align: center;
-    }
+    .price { font-weight: 700; text-align: center; color: #352826; }
 
     .cardwrap {
       position: relative;
@@ -106,15 +102,12 @@ if ($ids) {
       place-items: center;
       border-radius: 50%;
       background: #fff;
-      border: 1px solid #111;
+      border: 1px solid #352826;
       cursor: pointer;
       z-index: 5;
     }
 
-    .fav-pin.active {
-      background: #111;
-      color: #fff;
-    }
+    .fav-pin.active { background: #352826; color: #fff; }
   </style>
 </head>
 

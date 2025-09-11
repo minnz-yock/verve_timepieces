@@ -1,6 +1,11 @@
 <?php
-if (!isset($_SESSION)) session_start();
-require_once "../dbconnect.php";
+// if (!isset($_SESSION)) session_start();
+// require_once "../dbconnect.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../dbconnect.php'; 
 
 /**
  * Return the logged-in user id from your auth.

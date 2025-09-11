@@ -2,8 +2,12 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once "../dbconnect.php";
-require_once "favorites_util.php";
+// require_once "../dbconnect.php";
+// require_once "favorites_util.php";
+
+$root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/\\');
+require_once $root . '/dbconnect.php';
+require_once $root . '/customer/favorites_util.php';
 $favCount = fav_count($conn);
 
 // Count cart items for the badge
@@ -86,8 +90,8 @@ $cartCount = $cart_count_stmt->fetchColumn();
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="accdetails.php">Account Details</a></li>
-                            <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
+                            <li><a class="dropdown-item" href="/customer/account_details.php">Account Details</a></li>
+                            <li><a class="dropdown-item" href="/logout.php">Logout</a></li>
                         </ul>
                     </li>
                 <?php else: ?>
@@ -126,9 +130,10 @@ $cartCount = $cart_count_stmt->fetchColumn();
 </nav>
 
 <style>
+    /* color palette */
     /* Give the whole bar some side padding so the right-most icon isn’t on the edge */
     .navbar {
-        background: #FFF;
+        background: #fff;
         border-bottom: 1px solid #DED2C8;
         padding: 1rem 1rem;
         height: 100px;
@@ -177,7 +182,7 @@ $cartCount = $cart_count_stmt->fetchColumn();
         border-radius: 5px;
         box-shadow: 0 6px 12px rgba(0, 0, 0, .10);
         border: 1px solid #DED2C8;
-        background: #FFF;
+        background: #fff;
     }
 
     .dropdown-menu.multi-column-dropdown .row {
@@ -206,7 +211,7 @@ $cartCount = $cart_count_stmt->fetchColumn();
 
     .search-input {
         border: 1.5px solid #A57A5B;
-        background: #FFF;
+        background: #fff;
         color: #352826;
         border-radius: 6px 0 0 6px;
         font-size: .95rem;
@@ -345,13 +350,14 @@ $cartCount = $cart_count_stmt->fetchColumn();
     }
 
     .btn-checkout {
-        background: #222;
+        background: #352826;
         color: #fff;
         border-radius: 8px;
         font-weight: 600;
         padding: 8px 24px;
         text-transform: uppercase;
     }
+    .btn-checkout:hover { background: #785A49 }
 
     .modal-body-empty {
         text-align: center;
@@ -433,7 +439,7 @@ $cartCount = $cart_count_stmt->fetchColumn();
     async function fetchBagData() {
         
             try {
-                const res = await fetch('get_card_data.php'); // match actual filename
+                const res = await fetch('get_cart_data.php'); // match actual filename
                 if (!res.ok) throw new Error('Failed to load cart');
                 const data = await res.json();
 
@@ -449,7 +455,7 @@ $cartCount = $cart_count_stmt->fetchColumn();
 
         document.addEventListener('DOMContentLoaded', fetchBagData);
 
-        const response = await fetch('get_card_data.php');
+        const response = await fetch('get_cart_data.php');
         const data = await response.json();
         const modalBody = document.getElementById('bag-modal-body');
         const totalFooter = document.getElementById('bag-total-price');

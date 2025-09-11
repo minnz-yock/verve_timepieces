@@ -204,7 +204,7 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
     <style>
         body {
             background: #fff;
-            color: #222;
+            color: #352826;
         }
 
         .filters-wrap {
@@ -212,7 +212,7 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             top: 0;
             z-index: 100;
             background: #fff;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #DED2C8;
         }
 
         .filters-bar {
@@ -224,7 +224,7 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
         }
 
         .filter-pill .btn {
-            border: 1px solid #111;
+            border: 1px solid #352826;
             border-radius: 6px;
             padding: .5rem .75rem;
             font-weight: 600;
@@ -234,7 +234,7 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             width: 320px;
             max-height: 360px;
             overflow: auto;
-            border: 1px solid #111;
+            border: 1px solid #A57A5B;
             border-radius: 8px;
             padding: .5rem .75rem;
         }
@@ -243,7 +243,7 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             font-size: .85rem;
             font-weight: 700;
             text-transform: uppercase;
-            color: #666;
+            color: #785A49;
             margin: .25rem 0 .5rem;
         }
 
@@ -255,9 +255,7 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             border-radius: 6px;
         }
 
-        .option-row:hover {
-            background: #f5f5f5;
-        }
+        .option-row:hover { background: #DED2C8; }
 
         .option-row label {
             flex: 1;
@@ -273,7 +271,7 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             display: flex;
             gap: .5rem;
             padding-top: .5rem;
-            border-top: 1px dashed #ddd;
+            border-top: 1px dashed #A57A5B;
             margin-top: .5rem;
         }
 
@@ -281,17 +279,9 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             flex: 1;
         }
 
-        .filter-active {
-            background: #111 !important;
-            color: #fff !important;
-        }
+        .filter-active { background: #352826 !important; color: #fff !important; }
 
-        .divider-v {
-            width: 1px;
-            height: 28px;
-            background: #ddd;
-            margin: 0 .25rem;
-        }
+        .divider-v { width: 1px; height: 28px; background: #DED2C8; margin: 0 .25rem; }
 
         .btn-reset {
             border-color: #c00;
@@ -307,17 +297,13 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             padding: 1.25rem .75rem;
         }
 
-        .product-card {
-            border: 0;
-            background: #fff;
-            text-align: center;
-        }
+        .product-card { border: 0; background: #fff; text-align: center; }
 
         .img-box {
             width: 100%;
             aspect-ratio: 1 / 1;
             background: #fff;
-            border: 1px solid #eee;
+            border: 1px solid #DED2C8;
             border-radius: 12px;
             display: grid;
             place-items: center;
@@ -335,26 +321,21 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             font-weight: 800;
             font-size: .9rem;
             letter-spacing: .6px;
-            color: #000;
+            color: #352826;
             text-transform: uppercase;
             text-align: center;
         }
 
         .model {
             font-size: .98rem;
-            color: #333;
+            color: #785A49;
             margin: .15rem 0 .4rem;
             min-height: 2.2em;
             font-weight: 600;
             text-align: center;
         }
 
-        .price {
-            font-weight: 700;
-            color: #000;
-            font-size: 1rem;
-            text-align: center;
-        }
+        .price { font-weight: 700; color: #352826; font-size: 1rem; text-align: center; }
 
         .results-count {
             padding: .25rem .75rem;
@@ -376,15 +357,12 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             place-items: center;
             border-radius: 50%;
             background: #fff;
-            border: 1px solid #111;
+            border: 1px solid #352826;
             cursor: pointer;
             z-index: 5;
         }
 
-        .fav-pin.active {
-            background: #111;
-            color: #fff;
-        }
+        .fav-pin.active { background: #352826; color: #fff; }
 
         /* Price slider */
         .price-slider {
