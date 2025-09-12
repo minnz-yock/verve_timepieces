@@ -14,16 +14,18 @@ $stmtUser = $conn->prepare('SELECT id, username, first_name, last_name, email FR
 $stmtUser->execute([(int)$_SESSION['user_id']]);
 $user = $stmtUser->fetch();
 
-// Fetch existing addresses (one per type)
+// Fetch existing addresses from new tables
 $addr = ['billing' => null, 'shipping' => null];
-$stmt = $conn->prepare('SELECT * FROM addresses WHERE user_id = ?');
-$stmt->execute([$user['id']]);
-foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
-  $key = strtolower(trim((string)($r['address_type'] ?? '')));
-  if ($key === 'billing' || $key === 'shipping') {
-    $addr[$key] = $r;
-  }
-}
+// Billing
+$stmtBill = $conn->prepare('SELECT first_name, last_name, country_region, street_address, address_line2, city_town, phone FROM bill_address WHERE user_id = ?');
+$stmtBill->execute([$user['id']]);
+$rowBill = $stmtBill->fetch(PDO::FETCH_ASSOC);
+if ($rowBill) { $addr['billing'] = $rowBill; }
+// Shipping
+$stmtShip = $conn->prepare('SELECT first_name, last_name, country_region, street_address, address_line2, city_town, phone FROM ship_address WHERE user_id = ?');
+$stmtShip->execute([$user['id']]);
+$rowShip = $stmtShip->fetch(PDO::FETCH_ASSOC);
+if ($rowShip) { $addr['shipping'] = $rowShip; }
 // Flash message
 $ok  = isset($_GET['ok']) ? (int)$_GET['ok'] : null;
 $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';

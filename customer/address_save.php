@@ -22,12 +22,18 @@ $required = [ ['First name',$first], ['Last name',$last], ['Country / Region',$c
 foreach ($required as [$label,$val]) { if ($val==='') { header('Location: /customer/address_book.php?ok=0&msg=' . urlencode("$label is required.")); exit; } }
 
 try {
-  $sql = 'INSERT INTO addresses (user_id, address_type, first_name, last_name, country_region, street_address, address_line2, city_town, phone)
-          VALUES (:uid, :type, :first, :last, :country, :street, :line2, :city, :phone)
-          ON DUPLICATE KEY UPDATE first_name=VALUES(first_name), last_name=VALUES(last_name), country_region=VALUES(country_region), street_address=VALUES(street_address), address_line2=VALUES(address_line2), city_town=VALUES(city_town), phone=VALUES(phone)';
+  if ($type === 'billing') {
+    $sql = 'INSERT INTO bill_address (user_id, first_name, last_name, country_region, street_address, address_line2, city_town, phone)
+            VALUES (:uid, :first, :last, :country, :street, :line2, :city, :phone)
+            ON DUPLICATE KEY UPDATE first_name=VALUES(first_name), last_name=VALUES(last_name), country_region=VALUES(country_region), street_address=VALUES(street_address), address_line2=VALUES(address_line2), city_town=VALUES(city_town), phone=VALUES(phone)';
+  } else {
+    $sql = 'INSERT INTO ship_address (user_id, first_name, last_name, country_region, street_address, address_line2, city_town, phone)
+            VALUES (:uid, :first, :last, :country, :street, :line2, :city, :phone)
+            ON DUPLICATE KEY UPDATE first_name=VALUES(first_name), last_name=VALUES(last_name), country_region=VALUES(country_region), street_address=VALUES(street_address), address_line2=VALUES(address_line2), city_town=VALUES(city_town), phone=VALUES(phone)';
+  }
   $stmt = $conn->prepare($sql);
   $stmt->execute([
-    ':uid'=>$user_id, ':type'=>$type, ':first'=>$first, ':last'=>$last, ':country'=>$country, ':street'=>$street, ':line2'=>($line2!==''?$line2:null), ':city'=>$city, ':phone'=>$phone
+    ':uid'=>$user_id, ':first'=>$first, ':last'=>$last, ':country'=>$country, ':street'=>$street, ':line2'=>($line2!==''?$line2:null), ':city'=>$city, ':phone'=>$phone
   ]);
   header('Location: /customer/address_book.php?ok=1&type=' . urlencode($type) . '&msg=' . urlencode(ucfirst($type).' address saved.')); exit;
 } catch (Throwable $e) {
