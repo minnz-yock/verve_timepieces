@@ -13,11 +13,11 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="dropdown">
                 <a href="#" class="admin-dropdown-toggle" id="adminInfoDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="display:inline-block;">
                     <!-- <i class="bi bi-person-circle" style="font-size: 1.7rem; color: #352826; vertical-align:middle;"></i> -->
-                    <span style="font-weight:600; color:#785A49; margin-left:8px;"><b>Welcome: </b><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                    <span style="font-weight:600; color:#785A49; margin-left:8px;"><b>Welcome: </b><?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?></span>
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="adminInfoDropdown" style="min-width:220px; border-radius:10px;">
                     <li class="dropdown-item-text" style="padding: 12px 18px;">
-                        <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong><br>
+                        <strong><?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?></strong><br>
                         <small><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></small>
                     </li>
                     <li><hr class="dropdown-divider"></li>
@@ -40,6 +40,14 @@ if (session_status() === PHP_SESSION_NONE) {
         </li>
      
       
+        <!-- Orders Category -->
+        <div class="category-title">Orders</div>
+        <li>
+            <a href="order_management.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'order_management.php') ? 'active' : ''; ?>">
+                <i class="bi bi-box-seam me-2"></i> Order Management
+            </a>
+        </li>
+    
         <!-- Users Category -->
         <div class="category-title">Users</div>
         <li>

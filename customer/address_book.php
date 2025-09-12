@@ -10,7 +10,7 @@ if (empty($_SESSION['user_id'])) {
 }
 
 // Load current user
-$stmtUser = $conn->prepare('SELECT id, username, first_name, last_name, email FROM users WHERE id = ?');
+$stmtUser = $conn->prepare('SELECT id, first_name, last_name, email FROM users WHERE id = ?');
 $stmtUser->execute([(int)$_SESSION['user_id']]);
 $user = $stmtUser->fetch();
 

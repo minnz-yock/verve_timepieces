@@ -78,12 +78,12 @@ $cartCount = $cart_count_stmt->fetchColumn();
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
-                            <?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>
+                            <?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li>
                                 <span class="dropdown-item-text">
-                                    <strong><?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?></strong><br>
+                                    <strong><?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?></strong><br>
                                     <small><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></small>
                                 </span>
                             </li>

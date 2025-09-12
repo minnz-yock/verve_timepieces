@@ -1,5 +1,6 @@
 <?php
 if (!isset($_SESSION)) session_start();
+require_once('../user_login_check.php');
 require_once "../dbconnect.php";
 require_once "favorites_util.php";
 

@@ -40,6 +40,7 @@ $conn->exec("CREATE TABLE IF NOT EXISTS ship_address (
 // Updated orders table with order_id, status, and FK references to address tables
 $conn->exec("CREATE TABLE IF NOT EXISTS orders (
   order_id INT AUTO_INCREMENT PRIMARY KEY,
+  order_number VARCHAR(20) UNIQUE,
   user_id INT NOT NULL,
   billing_address_id INT NULL,
   shipping_address_id INT NULL,
@@ -49,6 +50,7 @@ $conn->exec("CREATE TABLE IF NOT EXISTS orders (
   status ENUM('pending','processing','completed','cancelled') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_orders_user (user_id),
+  INDEX idx_orders_order_number (order_number),
   CONSTRAINT fk_orders_bill_addr FOREIGN KEY (billing_address_id) REFERENCES bill_address(id) ON DELETE SET NULL,
   CONSTRAINT fk_orders_ship_addr FOREIGN KEY (shipping_address_id) REFERENCES ship_address(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
@@ -86,6 +88,31 @@ foreach ($items as $it) { $subtotal += (float)$it['price'] * (int)$it['quantity'
 $shippingCost = (float)$state['shipping']['cost'];
 $total = $subtotal + $shippingCost;
 
+// Function to generate unique order number
+function generateOrderNumber($conn) {
+  $prefix = 'EC';
+  $maxAttempts = 10;
+  
+  for ($i = 0; $i < $maxAttempts; $i++) {
+    // Get the next available number
+    $stmt = $conn->query("SELECT COALESCE(MAX(CAST(SUBSTRING(order_number, 3) AS UNSIGNED)), 0) + 1 as next_num FROM orders WHERE order_number LIKE 'EC%'");
+    $nextNum = $stmt->fetchColumn();
+    
+    $orderNumber = $prefix . $nextNum;
+    
+    // Check if this order number already exists
+    $checkStmt = $conn->prepare("SELECT COUNT(*) FROM orders WHERE order_number = ?");
+    $checkStmt->execute([$orderNumber]);
+    
+    if ($checkStmt->fetchColumn() == 0) {
+      return $orderNumber;
+    }
+  }
+  
+  // Fallback: use timestamp if we can't generate a unique number
+  return $prefix . time();
+}
+
 $conn->beginTransaction();
 try {
   // Upsert addresses to bill_address and ship_address, then create order referencing them
@@ -116,10 +143,13 @@ try {
   $getBill->execute([$userId]);
   $billId = (int)($getBill->fetchColumn() ?: 0);
 
+  // Generate unique order number
+  $orderNumber = generateOrderNumber($conn);
+  
   // Insert order referencing address ids and set initial status to pending
-  $o = $conn->prepare('INSERT INTO orders (user_id, billing_address_id, shipping_address_id, total, shipping_method, shipping_cost, status)
-                       VALUES (?,?,?,?,?,?,?)');
-  $o->execute([$userId, $billId, $shipId, $total, $s['method'], $shippingCost, 'pending']);
+  $o = $conn->prepare('INSERT INTO orders (order_number, user_id, billing_address_id, shipping_address_id, total, shipping_method, shipping_cost, status)
+                       VALUES (?,?,?,?,?,?,?,?)');
+  $o->execute([$orderNumber, $userId, $billId, $shipId, $total, $s['method'], $shippingCost, 'pending']);
   $orderId = (int)$conn->lastInsertId();
 
   // Insert items

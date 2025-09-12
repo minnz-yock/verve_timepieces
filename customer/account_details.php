@@ -10,7 +10,7 @@ if (empty($_SESSION['user_id'])) {
 }
 
 // Load current user
-$stmt = $conn->prepare('SELECT id, username, first_name, last_name, email FROM users WHERE id = ?');
+$stmt = $conn->prepare('SELECT id, first_name, last_name, email FROM users WHERE id = ?');
 $stmt->execute([(int)$_SESSION['user_id']]);
 $user = $stmt->fetch();
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $msg = 'Your account details have been updated.';
         }
         // refresh user
-        $stmt = $conn->prepare('SELECT id, username, first_name, last_name, email FROM users WHERE id = ?');
+        $stmt = $conn->prepare('SELECT id, first_name, last_name, email FROM users WHERE id = ?');
         $stmt->execute([(int)$_SESSION['user_id']]);
         $user = $stmt->fetch();
       }
@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <form method="post" action="account_details.php" class="form" id="account-form">
         <div class="grid">
           <label>First name *
-            <input type="text" name="first_name" value="<?= htmlspecialchars(($user['first_name'] ?: ($user['username'] ?? ''))) ?>" required>
+            <input type="text" name="first_name" value="<?= htmlspecialchars($user['first_name'] ?? '') ?>" required>
           </label>
           <label>Last name
             <input type="text" name="last_name" value="<?= htmlspecialchars($user['last_name'] ?? '') ?>">

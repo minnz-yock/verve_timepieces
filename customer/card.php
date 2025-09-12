@@ -168,7 +168,7 @@ function mm($n)
                 cartContent.innerHTML = `
                     <div class="empty-cart-message">
                         <p>Your cart is currently empty.</p>
-                        <a href="products.php" class="btn btn-return mt-3">Return To Shop</a>
+                        <a href="view_products.php" class="btn btn-return mt-3">Return To Shop</a>
                     </div>
                 `;
                 return;

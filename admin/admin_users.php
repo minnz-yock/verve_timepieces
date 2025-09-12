@@ -2,7 +2,7 @@
 session_start();
 
 /* ---- SIMPLE ADMIN GUARD ---- */
-if (!isset($_SESSION['username']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['first_name']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../signinform.php");
     exit();
 }
@@ -71,19 +71,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    if ($action === 'add_user' && isset($_POST['username'], $_POST['email'], $_POST['password'], $_POST['role'])) {
-        $username = trim($_POST['username']);
+    if ($action === 'add_user' && isset($_POST['first_name'], $_POST['last_name'], $_POST['email'], $_POST['password'], $_POST['role'])) {
+        $first_name = trim($_POST['first_name']);
+        $last_name = trim($_POST['last_name']);
         $email = trim($_POST['email']);
         $role = $_POST['role'] === 'admin' ? 'admin' : 'customer';
         $password = $_POST['password'];
 
-        if ($username === '' || $email === '' || $password === '') {
+        if ($first_name === '' || $last_name === '' || $email === '' || $password === '') {
             set_flash('danger', 'All fields are required.');
         } else {
             try {
                 $hash = password_hash($password, PASSWORD_BCRYPT);
-                $ins = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-                $ins->execute([$username, $email, $hash, $role]);
+                $ins = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)");
+                $ins->execute([$first_name, $last_name, $email, $hash, $role]);
                 set_flash('success', 'New user added.');
             } catch (PDOException $e) {
                 set_flash('danger', 'Could not add user: ' . $e->getMessage());
@@ -96,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 /* ---- FETCH USERS ---- */
 $adminCount = (int)$conn->query("SELECT COUNT(*) FROM users WHERE role='admin'")->fetchColumn();
-$stmt = $conn->query("SELECT id, username, email, role FROM users ORDER BY id ASC");
+$stmt = $conn->query("SELECT id, first_name, last_name, email, role FROM users ORDER BY id ASC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $flash = get_flash();
 ?>
@@ -302,7 +303,8 @@ $flash = get_flash();
                         <thead>
                             <tr>
                                 <th style="width:80px;">ID</th>
-                                <th>User Name</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
                                 <th>Email</th>
                                 <th style="width:220px;">Role</th>
                                 <th style="width:140px;">Actions</th>
@@ -311,7 +313,7 @@ $flash = get_flash();
                         <tbody>
                             <?php if (empty($users)): ?>
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted p-4">No users found.</td>
+                                    <td colspan="6" class="text-center text-muted p-4">No users found.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($users as $u):
@@ -319,7 +321,8 @@ $flash = get_flash();
                                 ?>
                                     <tr class="<?= $isProtected ? 'table-warning' : '' ?>">
                                         <td><?= htmlspecialchars($u['id']) ?></td>
-                                        <td><?= htmlspecialchars($u['username']) ?></td>
+                                        <td><?= htmlspecialchars($u['first_name']) ?></td>
+                                        <td><?= htmlspecialchars($u['last_name']) ?></td>
                                         <td><?= htmlspecialchars($u['email']) ?></td>
                                         <td>
                                             <?php if ($isProtected): ?>
@@ -339,7 +342,7 @@ $flash = get_flash();
                                             <?php if ($isProtected): ?>
                                                 <span class="text-muted">Protected</span>
                                             <?php else: ?>
-                                                <button type="button" class="btn btn-sm btn-delete" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?= (int)$u['id'] ?>" data-username="<?= htmlspecialchars($u['username']) ?>">
+                                                <button type="button" class="btn btn-sm btn-delete" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="<?= (int)$u['id'] ?>" data-username="<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                             <?php endif; ?>
@@ -365,8 +368,12 @@ $flash = get_flash();
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">User Name</label>
-                        <input type="text" name="username" class="form-control" required>
+                        <label class="form-label">First Name</label>
+                        <input type="text" name="first_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" name="last_name" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email</label>

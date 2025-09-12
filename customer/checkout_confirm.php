@@ -15,7 +15,7 @@ if (!$orderId) {
   exit;
 }
 
-$o = $conn->prepare('SELECT order_id, total, shipping_method, created_at FROM orders WHERE order_id=? AND user_id=?');
+$o = $conn->prepare('SELECT order_id, order_number, total, shipping_method, created_at FROM orders WHERE order_id=? AND user_id=?');
 $o->execute([(int)$orderId, (int)$_SESSION['user_id']]);
 $order = $o->fetch(PDO::FETCH_ASSOC);
 if (!$order) {
@@ -96,7 +96,7 @@ if (stripos($m, 'Express (1–2 days)') !== false) {
         <div class="col">
           <div class="p-3" style="background:#DED2C8; border-radius:8px;">
             <div class="small text-muted">Order Number:</div>
-            <div class="big">#EC<?= (int)$order['order_id'] ?></div>
+            <div class="big">#<?= htmlspecialchars($order['order_number'] ?? 'EC' . $order['order_id']) ?></div>
           </div>
         </div>
         <div class="col">
