@@ -26,7 +26,11 @@ if (isset($_POST["submit"])) {
             $_SESSION["role"] = $user["role"];
 
             
-            if ($user["role"] === "admin") {
+            // Check if user was trying to submit a review
+            if (isset($_SESSION['review_data'])) {
+                // Redirect back to reviews page to complete review submission
+                header("Location: customer\reviews.php");
+            } elseif ($user["role"] === "admin") {
                 header("Location: admin\admin_dashboard.php");
             } else {
                 header("Location: customer\index.php");

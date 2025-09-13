@@ -499,6 +499,10 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
             }
         }
     </script>
+    
+    <!-- Product Reviews Section -->
+    <?php include 'review_handler.php'; ?>
+    <?php include 'product_reviews_section.php'; ?>
 </body>
 
 </html>

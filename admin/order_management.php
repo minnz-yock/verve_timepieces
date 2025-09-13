@@ -220,64 +220,169 @@ if (isset($_GET['order_id'])) {
             color: #352826;
         }
 
-        .search-filter-section {
-            background: white;
+        /* Card Styles */
+        .card {
+            background: #785A49;
             border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid #DED2C8;
+            box-shadow: 0 4px 15px rgba(53, 40, 38, 0.08);
+            border: 1px solid #A57A5B;
+            margin-bottom: 30px;
         }
 
-        .search-input {
-            border: 1px solid #DED2C8;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
+        .card-header {
+            background: #A57A5B;
+            border-bottom: 1px solid #785A49;
+            border-radius: 12px 12px 0 0;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #DED2C8;
+            font-size: 1.1rem;
         }
 
-        .search-input:focus {
+        .card-body {
+            background: #DED2C8;
+            color: #352826;
+            padding: 20px;
+        }
+
+        /* Form Styles */
+        .form-label {
+            color: #785A49;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .form-control,
+        .form-select {
+            background: #DED2C8;
+            border: 1px solid #A57A5B;
+            color: #352826;
+            border-radius: 6px;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
             border-color: #785A49;
-            box-shadow: 0 0 0 0.2rem rgba(120, 90, 73, 0.25);
+            box-shadow: 0 0 0 2px rgba(168, 122, 91, 0.15);
         }
 
-        .filter-select {
-            border: 1px solid #DED2C8;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            background: white;
+        .form-control::placeholder {
+            color: #A57A5B;
         }
 
-        .filter-select:focus {
-            border-color: #785A49;
-            box-shadow: 0 0 0 0.2rem rgba(120, 90, 73, 0.25);
+        .input-group-text {
+            background: #DED2C8;
+            border: 1px solid #A57A5B;
+            color: #352826;
+            border-radius: 6px 0 0 6px;
         }
 
-        .orders-table-container {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid #DED2C8;
+        .input-group .form-control {
+            border-radius: 0 6px 6px 0;
         }
 
         .table {
             margin-bottom: 0;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #A57A5B;
         }
 
-        .table th {
-            border-top: none;
-            border-bottom: 2px solid #DED2C8;
+        .table thead th {
+            background-color: #352826;
+            color: #DED2C8;
+            font-weight: 400;
+            border-right: 1px solid #A57A5B;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.4px;
+            padding: 1rem 0.75rem;
+        }
+
+        .table tbody tr {
+            background-color: #DED2C8;
             color: #352826;
-            font-weight: 600;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            color: #352826;
+            font-size: 0.95rem;
+            border-top: 1px solid #785A5B;
+            border-right: 1px solid #785A5B;
             padding: 1rem 0.75rem;
         }
 
-        .table td {
-            border-top: 1px solid #DED2C8;
-            padding: 1rem 0.75rem;
-            vertical-align: middle;
+        .table-hover tbody tr:hover {
+            background-color: #A57A5B;
+            color: #DED2C8;
+        }
+
+        .table-hover tbody tr:hover a,
+        .table-hover tbody tr:hover i {
+            color: #fff;
+        }
+
+        .table-hover tbody tr:hover td {
+            border-right-color: #DED2C8;
+            border-top-color: #DED2C8;
+        }
+
+        /* Ensure no-orders row has same styling as regular rows */
+        .table tbody tr .text-muted {
+            color: #A57A5B !important;
+        }
+
+        .table-hover tbody tr:hover .text-muted {
+            color: #DED2C8 !important;
+        }
+
+        .status-badge.no-status {
+            background-color: #DED2C8;
+            color: #352826;
+            border-color: #A57A5B;
+        }
+
+        .btn-view-details.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Admin Primary Button */
+        .btn-primary-admin {
+            background: #352826;
+            color: #DED2C8;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            transition: background 0.2s;
+            border: 1px solid #A57A5B;
+        }
+
+        .btn-primary-admin:hover {
+            background: #785A49;
+            color: #DED2C8;
+            border-color: #A57A5B;
+        }
+
+        .btn-search-custom {
+            background: #785A49;
+            color: #DED2C8;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            border-radius: 0 6px 6px 0;
+            padding: 0.6rem 1rem;
+            transition: background 0.2s;
+            border: 1px solid #A57A5B;
+        }
+
+        .btn-search-custom:hover {
+            background: #A57A5B;
+            color: #DED2C8;
+            border-color: #785A49;
         }
 
         .customer-info {
@@ -302,43 +407,104 @@ if (isset($_GET['order_id'])) {
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s ease;
+            border: 1px solid #A57A5B;
+            background-color: #DED2C8;
+            color: #352826;
         }
 
-        .status-badge.pending { background: #fff3cd; color: #856404; }
-        .status-badge.processing { background: #d1ecf1; color: #0c5460; }
-        .status-badge.shipped { background: #cce5ff; color: #004085; }
-        .status-badge.out-for-delivery { background: #fff3cd; color: #856404; }
-        .status-badge.delivered { background: #d4edda; color: #155724; }
-        .status-badge.cancelled { background: #f8d7da; color: #721c24; }
+        .status-badge.pending { background: #fff3cd; color: #856404; border-color: #f0ad4e; }
+        .status-badge.processing { background: #d1ecf1; color: #0c5460; border-color: #5bc0de; }
+        .status-badge.shipped { background: #cce5ff; color: #004085; border-color: #337ab7; }
+        .status-badge.out-for-delivery { background: #fff3cd; color: #856404; border-color: #f0ad4e; }
+        .status-badge.delivered { background: #d4edda; color: #155724; border-color: #5cb85c; }
+        .status-badge.cancelled { background: #f8d7da; color: #721c24; border-color: #d9534f; }
 
         .status-badge:hover {
             transform: scale(1.05);
+            background-color: #A57A5B;
+            color: #DED2C8;
+            border-color: #785A49;
+        }
+
+        .status-dropdown {
+            background-color: #DED2C8;
+            border: 1px solid #A57A5B;
+            color: #352826;
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        .status-dropdown:focus {
+            border-color: #785A49;
+            box-shadow: 0 0 0 2px rgba(168, 122, 91, 0.15);
+            background-color: #DED2C8;
+        }
+
+        .status-dropdown.pending { 
+            background-color: #fff3cd; 
+            color: #856404; 
+            border-color: #f0ad4e;
+        }
+        .status-dropdown.processing { 
+            background-color: #d1ecf1; 
+            color: #0c5460; 
+            border-color: #5bc0de;
+        }
+        .status-dropdown.shipped { 
+            background-color: #cce5ff; 
+            color: #004085; 
+            border-color: #337ab7;
+        }
+        .status-dropdown.out-for-delivery { 
+            background-color: #fff3cd; 
+            color: #856404; 
+            border-color: #f0ad4e;
+        }
+        .status-dropdown.delivered { 
+            background-color: #d4edda; 
+            color: #155724; 
+            border-color: #5cb85c;
+        }
+        .status-dropdown.cancelled { 
+            background-color: #f8d7da; 
+            color: #721c24; 
+            border-color: #d9534f;
         }
 
         .btn-view-details {
             background: #785A49;
-            color: white;
-            border: none;
+            color: #DED2C8;
+            border: 1px solid #A57A5B;
             padding: 0.5rem 1rem;
-            border-radius: 6px;
+            border-radius: 5px;
             font-size: 0.8rem;
+            font-weight: 600;
             transition: all 0.3s ease;
         }
 
         .btn-view-details:hover {
-            background: #A57A5B;
-            color: white;
+            background: #352826;
+            color: #DED2C8;
+            border-color: #A57A5B;
         }
 
         .modal-content {
             border-radius: 12px;
-            border: none;
+            border: 1px solid #A57A5B;
+            background-color: #DED2C8;
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #785A49 0%, #A57A5B 100%);
-            color: white;
+            background: #352826;
+            color: #DED2C8;
             border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid #A57A5B;
+        }
+
+        .modal-body {
+            background-color: #DED2C8;
+            color: #352826;
         }
 
         .modal-title {
@@ -596,52 +762,96 @@ if (isset($_GET['order_id'])) {
             </div>
 
             <!-- Search and Filter Section -->
-            <div class="search-filter-section">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-8">
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-search"></i>
-                            </span>
-                            <input type="text" class="form-control search-input" name="search" 
-                                   placeholder="Search orders, customers..." 
-                                   value="<?= htmlspecialchars($search) ?>">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-funnel"></i> Search & Filter Orders
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-7">
+                            <label class="form-label" for="search">Search Orders</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="search" name="search" 
+                                       placeholder="Search by order number, customer name, or email..." 
+                                       value="<?= htmlspecialchars($search) ?>">
+                                <button type="submit" class="btn btn-search-custom">
+                                    <i class="bi bi-search me-1"></i>Search
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <select class="form-select filter-select" name="status">
-                            <option value="all" <?= $statusFilter === 'all' ? 'selected' : '' ?>>All Status</option>
-                            <option value="pending" <?= $statusFilter === 'pending' ? 'selected' : '' ?>>Pending</option>
-                            <option value="processing" <?= $statusFilter === 'processing' ? 'selected' : '' ?>>Processing</option>
-                            <option value="shipped" <?= $statusFilter === 'shipped' ? 'selected' : '' ?>>Shipped</option>
-                            <option value="out_for_delivery" <?= $statusFilter === 'out_for_delivery' ? 'selected' : '' ?>>Out for Delivery</option>
-                            <option value="delivered" <?= $statusFilter === 'delivered' ? 'selected' : '' ?>>Delivered</option>
-                            <option value="cancelled" <?= $statusFilter === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-                        </select>
-                    </div>
-                </form>
+                        <div class="col-md-5">
+                            <label class="form-label" for="status">Filter by Status</label>
+                            <select class="form-select" id="status" name="status" onchange="this.form.submit()">
+                                <option value="all" <?= $statusFilter === 'all' ? 'selected' : '' ?>>All Status</option>
+                                <option value="pending" <?= $statusFilter === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="processing" <?= $statusFilter === 'processing' ? 'selected' : '' ?>>Processing</option>
+                                <option value="shipped" <?= $statusFilter === 'shipped' ? 'selected' : '' ?>>Shipped</option>
+                                <option value="out_for_delivery" <?= $statusFilter === 'out_for_delivery' ? 'selected' : '' ?>>Out for Delivery</option>
+                                <option value="delivered" <?= $statusFilter === 'delivered' ? 'selected' : '' ?>>Delivered</option>
+                                <option value="cancelled" <?= $statusFilter === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <!-- Orders Table -->
-            <div class="orders-table-container">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Order #</th>
-                                <th>Customer</th>
-                                <th>Status</th>
-                                <th>Total</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-box-seam"></i> Orders List
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle m-0">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             <?php if (empty($orders)): ?>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">
-                                        <i class="bi bi-box-seam" style="font-size: 2rem; color: #DED2C8;"></i>
-                                        <div class="mt-2">No orders found</div>
+                                    <td>
+                                        <strong>No orders found</strong>
+                                    </td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <div class="customer-name">
+                                                matching your criteria
+                                            </div>
+                                            <div class="customer-email">
+                                                try different search terms
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <form method="POST" style="display: inline;">
+                                            <input type="hidden" name="action" value="update_status">
+                                            <input type="hidden" name="order_id" value="0">
+                                            <select name="status" class="form-select form-select-sm status-dropdown" 
+                                                    disabled style="min-width: 140px; opacity: 0.5;">
+                                                <option value="no_status" selected>No Status</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <strong>$0.00</strong>
+                                    </td>
+                                    <td>
+                                        No Date
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-view-details" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                            <i class="bi bi-eye me-1"></i>View Details
+                                        </button>
                                     </td>
                                 </tr>
                             <?php else: ?>
@@ -664,8 +874,8 @@ if (isset($_GET['order_id'])) {
                                             <form method="POST" style="display: inline;">
                                                 <input type="hidden" name="action" value="update_status">
                                                 <input type="hidden" name="order_id" value="<?= $order['order_id'] ?>">
-                                                <select name="status" class="status-badge <?= $order['status'] ?>" 
-                                                        onchange="this.form.submit()" style="border: none; background: none; cursor: pointer;">
+                                                <select name="status" class="form-select form-select-sm status-dropdown <?= $order['status'] ?>" 
+                                                        onchange="this.form.submit()" style="min-width: 140px;">
                                                     <option value="pending" <?= $order['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
                                                     <option value="processing" <?= $order['status'] === 'processing' ? 'selected' : '' ?>>Processing</option>
                                                     <option value="shipped" <?= $order['status'] === 'shipped' ? 'selected' : '' ?>>Shipped</option>
@@ -691,7 +901,8 @@ if (isset($_GET['order_id'])) {
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -795,18 +1006,8 @@ if (isset($_GET['order_id'])) {
             window.location.href = `?order_id=${orderId}`;
         }
 
-        // Auto-submit search form on input
-        document.querySelector('input[name="search"]').addEventListener('input', function() {
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                this.form.submit();
-            }, 500);
-        });
-
-        // Auto-submit filter form on change
-        document.querySelector('select[name="status"]').addEventListener('change', function() {
-            this.form.submit();
-        });
+        // Manual search - no auto-submit needed
+        // Users now need to click the Search button to perform search
     </script>
 </body>
 </html>
