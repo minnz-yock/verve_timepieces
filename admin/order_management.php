@@ -700,7 +700,6 @@ if (isset($_GET['order_id'])) {
         <div class="content-area">
             <div class="page-header">
                 <h1 class="page-title">Order Management</h1>
-                <p class="page-subtitle">All orders managed and tracked.</p>
             </div>
 
             <?php $flash = get_flash(); if ($flash): ?>

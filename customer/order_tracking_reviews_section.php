@@ -155,7 +155,7 @@ $reviews = getReviewsByType($conn, 'Purchase/Delivery Experience Reviews', 3);
     
     <!-- Write Review Form -->
     <div class="mt-4">
-        <h5>Share Your Delivery Experience</h5>
+        <h5>Share Your Purchase & Delivery Experience</h5>
         <?= renderReviewForm('Purchase/Delivery Experience Reviews', null) ?>
     </div>
     

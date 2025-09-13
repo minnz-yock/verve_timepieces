@@ -10,14 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
         header('Location: signinform.php');
         exit();
     }
-    
+
     $user_id = $_SESSION['user_id'];
     $review_type = $_POST['review_type'];
     $star_rating = (int)$_POST['star_rating'];
     $review_title = trim($_POST['review_title']);
     $review_text = trim($_POST['review_text']);
     $product_id = !empty($_POST['product_id']) ? (int)$_POST['product_id'] : null;
-    
+
     // Validation
     if ($star_rating < 1 || $star_rating > 5) {
         $error_message = 'Please select a valid star rating.';
@@ -111,6 +111,7 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,23 +124,23 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
             background-color: #f8f9fa;
             color: #352826;
         }
-        
+
         .review-card {
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             border: 1px solid #DED2C8;
         }
-        
+
         .review-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
-        
+
         .review-type-badge {
             background: #785A49;
             color: white;
@@ -148,24 +149,24 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 0.8rem;
             font-weight: 500;
         }
-        
+
         .star-rating {
             color: #ffc107;
             font-size: 1.2rem;
         }
-        
+
         .review-title {
             font-weight: 600;
             color: #352826;
             margin-bottom: 0.5rem;
         }
-        
+
         .review-text {
             color: #666;
             line-height: 1.6;
             margin-bottom: 1rem;
         }
-        
+
         .review-meta {
             display: flex;
             justify-content: space-between;
@@ -173,48 +174,50 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 0.9rem;
             color: #785A49;
         }
-        
+
         .filter-section {
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             border: 1px solid #DED2C8;
         }
-        
+
         .write-review-section {
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             border: 1px solid #DED2C8;
         }
-        
+
         .btn-primary-custom {
             background: #785A49;
             border-color: #785A49;
             color: white;
             font-weight: 600;
         }
-        
+
         .btn-primary-custom:hover {
             background: #A57A5B;
             border-color: #A57A5B;
             color: white;
         }
-        
-        .form-control, .form-select {
+
+        .form-control,
+        .form-select {
             border: 1px solid #DED2C8;
             border-radius: 8px;
         }
-        
-        .form-control:focus, .form-select:focus {
+
+        .form-control:focus,
+        .form-select:focus {
             border-color: #785A49;
             box-shadow: 0 0 0 0.2rem rgba(120, 90, 73, 0.25);
         }
-        
+
         .stats-card {
             background: #785A49;
             color: white;
@@ -223,43 +226,44 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
             text-align: center;
             margin-bottom: 1rem;
         }
-        
+
         .stats-number {
             font-size: 2rem;
             font-weight: 700;
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 3rem;
             color: #666;
         }
-        
+
         .pagination .page-link {
             color: #785A49;
             border-color: #DED2C8;
         }
-        
+
         .pagination .page-link:hover {
             background-color: #785A49;
             border-color: #785A49;
             color: white;
         }
-        
+
         .pagination .page-item.active .page-link {
             background-color: #785A49;
             border-color: #785A49;
         }
     </style>
 </head>
+
 <body>
     <?php include 'navbarnew.php'; ?>
-    
+
     <div class="container mt-4">
         <div class="row">
             <div class="col-12">
                 <h1 class="mb-4"><i class="bi bi-star-fill me-2"></i>Customer Reviews</h1>
-                
+
                 <!-- Success/Error Messages -->
                 <?php if (isset($success_message)): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -267,14 +271,14 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
-                
+
                 <?php if (isset($error_message)): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?= htmlspecialchars($error_message) ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
-                
+
                 <!-- Review Statistics -->
                 <div class="row mb-4">
                     <?php foreach ($review_stats as $stat): ?>
@@ -287,7 +291,7 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     <?php endforeach; ?>
                 </div>
-                
+
                 <!-- Filters and Sort -->
                 <div class="filter-section">
                     <form method="GET" class="row g-3">
@@ -319,7 +323,79 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </form>
                 </div>
-                
+
+                <!-- Reviews List -->
+                <div class="reviews-section">
+                    <h4 class="mb-3">Reviews (<?= $total_reviews ?> total)</h4>
+
+                    <?php if (empty($reviews)): ?>
+                        <div class="empty-state">
+                            <i class="bi bi-star" style="font-size: 3rem; color: #DED2C8;"></i>
+                            <h5 class="mt-3">No reviews yet</h5>
+                            <p>Be the first to share your experience with Verve Timepieces!</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($reviews as $review): ?>
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <div>
+                                        <span class="review-type-badge"><?= htmlspecialchars($review['review_type']) ?></span>
+                                        <?php if ($review['product_name']): ?>
+                                            <small class="text-muted ms-2">for <?= htmlspecialchars($review['product_name']) ?></small>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="star-rating">
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <i class="bi bi-star<?= $i <= $review['star_rating'] ? '-fill' : '' ?>"></i>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+
+                                <?php if ($review['review_title']): ?>
+                                    <div class="review-title"><?= htmlspecialchars($review['review_title']) ?></div>
+                                <?php endif; ?>
+
+                                <div class="review-text"><?= nl2br(htmlspecialchars($review['review_text'])) ?></div>
+
+                                <div class="review-meta">
+                                    <div>
+                                        <strong><?= htmlspecialchars($review['first_name'] . ' ' . $review['last_name']) ?></strong>
+                                        <small class="text-muted">(<?= htmlspecialchars($review['email']) ?>)</small>
+                                    </div>
+                                    <div>
+                                        <?= date('Y-m-d', strtotime($review['created_at'])) ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+
+                        <!-- Pagination -->
+                        <?php if ($total_pages > 1): ?>
+                            <nav aria-label="Reviews pagination">
+                                <ul class="pagination justify-content-center">
+                                    <?php if ($page > 1): ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>">Previous</a>
+                                        </li>
+                                    <?php endif; ?>
+
+                                    <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+                                        <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                                            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+
+                                    <?php if ($page < $total_pages): ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>">Next</a>
+                                        </li>
+                                    <?php endif; ?>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+
                 <!-- Write Review Section -->
                 <div class="write-review-section">
                     <h4><i class="bi bi-pencil-square me-2"></i>Write a Review</h4>
@@ -363,82 +439,11 @@ $review_stats = $stats_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </form>
                 </div>
-                
-                <!-- Reviews List -->
-                <div class="reviews-section">
-                    <h4 class="mb-3">Reviews (<?= $total_reviews ?> total)</h4>
-                    
-                    <?php if (empty($reviews)): ?>
-                        <div class="empty-state">
-                            <i class="bi bi-star" style="font-size: 3rem; color: #DED2C8;"></i>
-                            <h5 class="mt-3">No reviews yet</h5>
-                            <p>Be the first to share your experience with Verve Timepieces!</p>
-                        </div>
-                    <?php else: ?>
-                        <?php foreach ($reviews as $review): ?>
-                            <div class="review-card">
-                                <div class="review-header">
-                                    <div>
-                                        <span class="review-type-badge"><?= htmlspecialchars($review['review_type']) ?></span>
-                                        <?php if ($review['product_name']): ?>
-                                            <small class="text-muted ms-2">for <?= htmlspecialchars($review['product_name']) ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="star-rating">
-                                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                                            <i class="bi bi-star<?= $i <= $review['star_rating'] ? '-fill' : '' ?>"></i>
-                                        <?php endfor; ?>
-                                    </div>
-                                </div>
-                                
-                                <?php if ($review['review_title']): ?>
-                                    <div class="review-title"><?= htmlspecialchars($review['review_title']) ?></div>
-                                <?php endif; ?>
-                                
-                                <div class="review-text"><?= nl2br(htmlspecialchars($review['review_text'])) ?></div>
-                                
-                                <div class="review-meta">
-                                    <div>
-                                        <strong><?= htmlspecialchars($review['first_name'] . ' ' . $review['last_name']) ?></strong>
-                                        <small class="text-muted">(<?= htmlspecialchars($review['email']) ?>)</small>
-                                    </div>
-                                    <div>
-                                        <?= date('Y-m-d', strtotime($review['created_at'])) ?>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                        
-                        <!-- Pagination -->
-                        <?php if ($total_pages > 1): ?>
-                            <nav aria-label="Reviews pagination">
-                                <ul class="pagination justify-content-center">
-                                    <?php if ($page > 1): ?>
-                                        <li class="page-item">
-                                            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>">Previous</a>
-                                        </li>
-                                    <?php endif; ?>
-                                    
-                                    <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
-                                        <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                                            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
-                                        </li>
-                                    <?php endfor; ?>
-                                    
-                                    <?php if ($page < $total_pages): ?>
-                                        <li class="page-item">
-                                            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>">Next</a>
-                                        </li>
-                                    <?php endif; ?>
-                                </ul>
-                            </nav>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                </div>
             </div>
         </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

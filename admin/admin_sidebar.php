@@ -20,7 +20,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         <strong><?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?></strong><br>
                         <small><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></small>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="../logout.php">Logout</a></li>
                 </ul>
             </div>
@@ -38,8 +40,8 @@ if (session_status() === PHP_SESSION_NONE) {
                 <i class="bi bi-tags me-2"></i> Products Management
             </a>
         </li>
-     
-      
+
+
         <!-- Orders Category -->
         <div class="category-title">Orders</div>
         <li>
@@ -47,128 +49,150 @@ if (session_status() === PHP_SESSION_NONE) {
                 <i class="bi bi-box-seam me-2"></i> Order Management
             </a>
         </li>
-    
+
         <!-- Users Category -->
         <div class="category-title">Users</div>
         <li>
             <a href="admin_users.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_users.php') ? 'active' : ''; ?>">
-                <i class="bi bi-people me-2"></i> See All Users
+                <i class="bi bi-people me-2"></i> Users Management
             </a>
         </li>
-    
+
+        <!-- REview Category  --->
+        <div class="category-title">Reviews</div>
+        <li>
+            <a href="review_management.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'review_management.php') ? 'active' : ''; ?>">
+                <i class="bi bi-chat-dots-fill"></i> Review Management
+            </a>
+        </li>
+
         <!-- Add more main categories as needed -->
     </ul>
 </div>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <style>
-body {
-    background-color: #DED2C8;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    min-height: 100vh;
-    margin: 0;
-    color: #352826;
-}
-.sidebar {
-    width: 235px;
-    background: #DED2C8;
-    padding: 20px 0;
-    border-right: 2px solid #785A49;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    overflow-y: auto;
-    z-index: 1000;
-    box-shadow: 2px 0 16px rgba(53, 40, 38, 0.08);
-}
-.sidebar .brand-logo {
-    background-color: #fff;
-    text-align: center;
-    margin-top: -20px;
-    margin-bottom: 20px;
-    padding: 0 15px;
-    border-radius: 0 0 14px 14px;
-    box-shadow: 0 2px 8px rgba(53, 40, 38, 0.06);
-}
-.sidebar .brand-logo img {
-    max-width: 100%;
-    height: 105px;
-    display: block;
-    margin: 0 auto;
-}
-.admin-info-wrapper {
-    margin-bottom: 12px;
-    margin-top: -10px;
-}
-.admin-dropdown-toggle {
-    text-decoration: none !important;
-    font-size: 18px;
-    font-style: italic;
-   
-}
-.sidebar h3 {
-    color: #785A49;
-    font-weight: 700;
-    padding: 0 15px 10px 15px;
-    margin-bottom: 18px;
-    border-bottom: 1px solid #A57A5B;
-    font-size: 1.08rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.sidebar ul li {
-    margin-bottom: 0;
-}
-.sidebar ul li a {
-    display: flex;
-    align-items: center;
-    padding: 10px 20px;
-    color: #352826;
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    background: none;
-    transition: background 0.18s, color 0.18s, border-left 0.2s;
-    position: relative;
-    overflow: hidden;
-    border-left: 4px solid transparent;
-    line-height: 1.4;
-    border-radius: 0 20px 20px 0;
-}
-.sidebar ul li a .bi {
-    margin-right: 10px;
-    font-size: 1.13rem;
-    color: #352826;
-    transition: color 0.18s;
-}
-.sidebar ul li a:hover,
-.sidebar ul li a.active {
-    background-color: #785A49;
-    color: #DED2C8;
-    border-left: 4px solid #A57A5B;
-}
-.sidebar ul li a:hover .bi,
-.sidebar ul li a.active .bi {
-    color: #352826;
-}
-.sidebar .category-title {
-    font-weight: 600;
-    color: #352826;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.82rem;
-    margin: 17px 0 7px 22px;
-}
-@media (max-width: 991.98px) {
-    .sidebar {
-        display: none;
+    body {
+        background-color: #DED2C8;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        min-height: 100vh;
+        margin: 0;
+        color: #352826;
     }
-}
+
+    .sidebar {
+        width: 235px;
+        background: #DED2C8;
+        padding: 20px 0;
+        border-right: 2px solid #785A49;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 2px 0 16px rgba(53, 40, 38, 0.08);
+    }
+
+    .sidebar .brand-logo {
+        background-color: #fff;
+        text-align: center;
+        margin-top: -20px;
+        margin-bottom: 20px;
+        padding: 0 15px;
+        border-radius: 0 0 14px 14px;
+        box-shadow: 0 2px 8px rgba(53, 40, 38, 0.06);
+    }
+
+    .sidebar .brand-logo img {
+        max-width: 100%;
+        height: 105px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .admin-info-wrapper {
+        margin-bottom: 12px;
+        margin-top: -10px;
+    }
+
+    .admin-dropdown-toggle {
+        text-decoration: none !important;
+        font-size: 18px;
+        font-style: italic;
+
+    }
+
+    .sidebar h3 {
+        color: #785A49;
+        font-weight: 700;
+        padding: 0 15px 10px 15px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #A57A5B;
+        font-size: 1.08rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar ul li {
+        margin-bottom: 0;
+    }
+
+    .sidebar ul li a {
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        color: #352826;
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        background: none;
+        transition: background 0.18s, color 0.18s, border-left 0.2s;
+        position: relative;
+        overflow: hidden;
+        border-left: 4px solid transparent;
+        line-height: 1.4;
+        border-radius: 0 20px 20px 0;
+    }
+
+    .sidebar ul li a .bi {
+        margin-right: 10px;
+        font-size: 1.13rem;
+        color: #352826;
+        transition: color 0.18s;
+    }
+
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+        background-color: #785A49;
+        color: #DED2C8;
+        border-left: 4px solid #A57A5B;
+    }
+
+    .sidebar ul li a:hover .bi,
+    .sidebar ul li a.active .bi {
+        color: #352826;
+    }
+
+    .sidebar .category-title {
+        font-weight: 600;
+        color: #352826;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.82rem;
+        margin: 17px 0 7px 22px;
+    }
+
+    @media (max-width: 991.98px) {
+        .sidebar {
+            display: none;
+        }
+    }
 </style>

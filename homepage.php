@@ -297,6 +297,10 @@ session_start();
 
     </main>
 
+        <!-- Home Page Reviews Section -->
+    <?php include 'customer/review_handler.php'; ?>
+    <?php include 'customer/home_reviews_section.php'; ?>
+
     <!-- Footer -->
     <footer class="text-center text-lg-start bg-body-tertiary text-muted py-4">
         <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
@@ -309,9 +313,7 @@ session_start();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous">
     </script>
     
-    <!-- Home Page Reviews Section -->
-    <?php include 'customer/review_handler.php'; ?>
-    <?php include 'customer/home_reviews_section.php'; ?>
+
 </body>
 
 </html>
