@@ -20,6 +20,45 @@ function mm($n)
     return $s . 'mm';
 }
 
+// Fetch all active discounts from the database
+function get_all_discounts($conn)
+{
+    $sql = "SELECT d.discount_id, d.kind, d.value, d.brand_id, d.category_id, pd.product_id
+            FROM discounts d
+            LEFT JOIN product_discounts pd ON d.discount_id = pd.discount_id
+            WHERE d.is_active = 1 AND d.starts_at <= NOW() AND d.ends_at >= NOW()";
+    $stmt = $conn->query($sql);
+    $discounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $map = [];
+    foreach ($discounts as $d) {
+        if ($d['product_id']) {
+            $map['product'][$d['product_id']] = $d;
+        } else if ($d['brand_id']) {
+            $map['brand'][$d['brand_id']] = $d;
+        } else if ($d['category_id']) {
+            $map['category'][$d['category_id']] = $d;
+        }
+    }
+    return $map;
+}
+
+// Find the best applicable discount for a product
+function find_best_discount($discounts, $product_id, $brand_id, $category_id)
+{
+    if (isset($discounts['product'][$product_id])) {
+        return $discounts['product'][$product_id];
+    }
+    if (isset($discounts['brand'][$brand_id])) {
+        return $discounts['brand'][$brand_id];
+    }
+    if (isset($discounts['category'][$category_id])) {
+        return $discounts['category'][$category_id];
+    }
+    return null;
+}
+
+
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $sql = "SELECT p.product_id, p.product_name, p.description, p.price, p.stock_quantity, p.image_url,
                p.case_size, b.brand_id, b.brand_name, c.category_id, c.cat_name,
@@ -39,6 +78,28 @@ if (!$product) {
     http_response_code(404);
     echo "Not found";
     exit;
+}
+
+$allDiscounts = get_all_discounts($conn);
+
+$originalPrice = (float)$product['price'];
+$finalPrice = $originalPrice;
+$isDiscounted = false;
+
+$discount = find_best_discount(
+    $allDiscounts,
+    (int)$product['product_id'],
+    (int)$product['brand_id'],
+    (int)$product['category_id']
+);
+if ($discount) {
+    $isDiscounted = true;
+    if ($discount['kind'] === 'percent') {
+        $finalPrice = $originalPrice * (1 - ($discount['value'] / 100));
+    } else { // fixed
+        $finalPrice = $originalPrice - $discount['value'];
+        if ($finalPrice < 0) $finalPrice = 0;
+    }
 }
 
 $isFav = fav_is_favorited($conn, (int)$product['product_id']);
@@ -300,7 +361,19 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
                     <div class="brand"><?= h($product['brand_name']) ?></div>
                     <div class="model"><?= h($product['product_name']) ?></div>
                     <div class="desc"><?= h(mm($product['case_size'])) ?> &nbsp;•&nbsp; <?= h($product['case_material']) ?></div>
-                    <div class="price"><?= money($product['price']) ?></div>
+                    <div class="price">
+                        <?php if ($isDiscounted): ?>
+                            <span style="text-decoration: line-through; color: #999;"><?= money($originalPrice) ?></span>
+                            <span style="font-weight:bold; color:#c94c4c; margin-left:7px;"><?= money($finalPrice) ?></span>
+                            <?php if ($discount['kind'] === 'percent'): ?>
+                                <span class="badge bg-danger ms-2"><?= (float)$discount['value'] ?>% OFF</span>
+                            <?php else: ?>
+                                <span class="badge bg-danger ms-2"><?= money($discount['value']) ?> OFF</span>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <span><?= money($finalPrice) ?></span>
+                        <?php endif; ?>
+                    </div>
 
                     <div class="d-flex gap-2">
                         <button class="btn btn-bag px-5 py-3 js-add-to-bag" type="button" data-id="<?= (int)$product['product_id'] ?>" <?= $outOfStock ? 'disabled' : '' ?>>
@@ -499,7 +572,7 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
             }
         }
     </script>
-    
+
     <!-- Product Reviews Section -->
     <?php include 'review_handler.php'; ?>
     <?php include 'product_reviews_section.php'; ?>

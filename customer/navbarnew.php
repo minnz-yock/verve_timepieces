@@ -34,7 +34,7 @@ $cartCount = $cart_count_stmt->fetchColumn();
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link active" href="homepage.php">Home</a></li>
+                <!-- <li class="nav-item"><a class="nav-link active" href="homepage.php">Home</a></li> -->
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">Buy Watch</a>
@@ -61,6 +61,7 @@ $cartCount = $cart_count_stmt->fetchColumn();
                     </ul>
                 </li>
 
+                <li class="nav-item"><a class="nav-link" href="discounts.php">Discounts</a></li>
                 <li class="nav-item"><a class="nav-link" href="services.php">Services</a></li>
             </ul>
 

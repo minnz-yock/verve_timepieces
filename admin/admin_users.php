@@ -208,7 +208,8 @@ $flash = get_flash();
         }
 
         .table-hover tbody tr:hover .btn-delete i {
-            color: #785A49;;
+            color: #785A49;
+            ;
         }
 
         /* The .btn-primary class styles were conflicting with Bootstrap's defaults.
@@ -390,7 +391,6 @@ $flash = get_flash();
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <p class="text-muted small m-0">Passwords are hashed with <code>password_hash()</code>.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>

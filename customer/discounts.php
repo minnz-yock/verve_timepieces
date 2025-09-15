@@ -53,51 +53,57 @@ function find_best_discount($discounts, $product_id, $brand_id, $category_id)
 }
 
 /* ---------- Read GET ---------- */
-$brandIds       = isset($_GET['brand'])        ? array_map('intval', (array)$_GET['brand']) : [];
-$categoryIds    = isset($_GET['category'])     ? array_map('intval', (array)$_GET['category']) : [];
-$caseMatIds     = isset($_GET['case_material']) ? array_map('intval', (array)$_GET['case_material']) : [];
-$genderIds      = isset($_GET['gender'])       ? array_map('intval', (array)$_GET['gender']) : [];
-$dialColorIds   = isset($_GET['dial_color'])   ? array_map('intval', (array)$_GET['dial_color']) : [];
-$sizeRanges     = isset($_GET['size'])         ? array_map('strval', (array)$_GET['size']) : [];
-$minPrice       = isset($_GET['min_price'])    && $_GET['min_price'] !== '' ? max(0, (float)$_GET['min_price']) : null;
-$maxPrice       = isset($_GET['max_price'])    && $_GET['max_price'] !== '' ? (float)$_GET['max_price'] : null;
-$sort           = isset($_GET['sort']) ? $_GET['sort'] : 'latest'; // latest | price_asc | price_desc
+$brandIds = isset($_GET['brand']) ? array_map('intval', (array)$_GET['brand']) : [];
+$categoryIds = isset($_GET['category']) ? array_map('intval', (array)$_GET['category']) : [];
+$caseMatIds = isset($_GET['case_material']) ? array_map('intval', (array)$_GET['case_material']) : [];
+$genderIds = isset($_GET['gender']) ? array_map('intval', (array)$_GET['gender']) : [];
+$dialColorIds = isset($_GET['dial_color']) ? array_map('intval', (array)$_GET['dial_color']) : [];
+$sizeRanges = isset($_GET['size']) ? array_map('strval', (array)$_GET['size']) : [];
+$minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? max(0, (float)$_GET['min_price']) : null;
+$maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (float)$_GET['max_price'] : null;
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'latest'; // latest | price_asc | price_desc
 
-/* ---------- DB min/max price ---------- */
-$mm = $conn->query("SELECT MIN(price) AS minp, MAX(price) AS maxp FROM products")->fetch(PDO::FETCH_ASSOC);
+/* ---------- DB min/max price for discounted products ---------- */
+$mm = $conn->query("SELECT MIN(p.price) AS minp, MAX(p.price) AS maxp
+                   FROM products p
+                   JOIN discounts d ON p.brand_id = d.brand_id OR p.category_id = d.category_id
+                   WHERE d.is_active = 1 AND d.starts_at <= NOW() AND d.ends_at >= NOW()")->fetch(PDO::FETCH_ASSOC);
 $globalMin = isset($mm['minp']) ? (float)$mm['minp'] : 0;
 $globalMax = isset($mm['maxp']) ? (float)$mm['maxp'] : 10000;
 
-/* ---------- Query builder ---------- */
+/* ---------- Query builder for filters ---------- */
 function build_where(array $state, string $excludeFacet = null)
 {
     $w = [];
     $p = [];
 
+    // The base query for discounts
+    $w[] = "d.is_active = 1 AND d.starts_at <= NOW() AND d.ends_at >= NOW()";
+
     if ($excludeFacet !== 'brand' && !empty($state['brand'])) {
-        $in  = implode(',', array_fill(0, count($state['brand']), '?'));
+        $in = implode(',', array_fill(0, count($state['brand']), '?'));
         $w[] = "p.brand_id IN ($in)";
-        $p   = array_merge($p, $state['brand']);
+        $p = array_merge($p, $state['brand']);
     }
     if ($excludeFacet !== 'category' && !empty($state['category'])) {
-        $in  = implode(',', array_fill(0, count($state['category']), '?'));
+        $in = implode(',', array_fill(0, count($state['category']), '?'));
         $w[] = "p.category_id IN ($in)";
-        $p   = array_merge($p, $state['category']);
+        $p = array_merge($p, $state['category']);
     }
     if ($excludeFacet !== 'case_material' && !empty($state['case_material'])) {
-        $in  = implode(',', array_fill(0, count($state['case_material']), '?'));
+        $in = implode(',', array_fill(0, count($state['case_material']), '?'));
         $w[] = "p.case_material_id IN ($in)";
-        $p   = array_merge($p, $state['case_material']);
+        $p = array_merge($p, $state['case_material']);
     }
     if ($excludeFacet !== 'gender' && !empty($state['gender'])) {
-        $in  = implode(',', array_fill(0, count($state['gender']), '?'));
+        $in = implode(',', array_fill(0, count($state['gender']), '?'));
         $w[] = "p.gender_id IN ($in)";
-        $p   = array_merge($p, $state['gender']);
+        $p = array_merge($p, $state['gender']);
     }
     if ($excludeFacet !== 'dial_color' && !empty($state['dial_color'])) {
-        $in  = implode(',', array_fill(0, count($state['dial_color']), '?'));
+        $in = implode(',', array_fill(0, count($state['dial_color']), '?'));
         $w[] = "p.dial_color_id IN ($in)";
-        $p   = array_merge($p, $state['dial_color']);
+        $p = array_merge($p, $state['dial_color']);
     }
     if ($excludeFacet !== 'size' && !empty($state['size'])) {
         $parts = [];
@@ -155,20 +161,24 @@ list($whereSql, $whereParams) = build_where($STATE);
 
 /* ---------- Fetch products ---------- */
 $orderBy = "p.product_id DESC";
-if ($sort === 'price_asc')   $orderBy = "p.price ASC";
-if ($sort === 'price_desc')  $orderBy = "p.price DESC";
+if ($sort === 'price_asc') $orderBy = "p.price ASC";
+if ($sort === 'price_desc') $orderBy = "p.price DESC";
 
 $sql = "SELECT p.product_id, p.product_name, p.price, p.image_url, p.case_size,
                p.brand_id, p.category_id, b.brand_name, c.cat_name
         FROM products p
         JOIN brands b ON p.brand_id = b.brand_id
         JOIN categories c ON p.category_id = c.category_id
-        $whereSql ORDER BY $orderBy";
+        LEFT JOIN product_discounts pd ON p.product_id = pd.product_id
+        LEFT JOIN discounts d ON pd.discount_id = d.discount_id OR p.brand_id = d.brand_id OR p.category_id = d.category_id
+        $whereSql
+        GROUP BY p.product_id
+        ORDER BY $orderBy";
 $stmt = $conn->prepare($sql);
 $stmt->execute($whereParams);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// **ADDED:** Fetch all active discounts once
+// Fetch all active discounts once for calculating prices
 $allDiscounts = get_all_discounts($conn);
 
 /* ---------- Facets + counts ---------- */
@@ -182,7 +192,12 @@ function facet_counts_group($conn, $STATE, $facet, $table, $id, $name)
 {
     list($w, $p) = build_where($STATE, $facet);
     $sql = "SELECT t.$id AS id, t.$name AS label, COUNT(*) AS cnt
-          FROM products p JOIN $table t ON p.$id = t.$id
+          FROM products p
+          JOIN brands b ON p.brand_id = b.brand_id
+          JOIN categories c ON p.category_id = c.category_id
+          LEFT JOIN product_discounts pd ON p.product_id = pd.product_id
+          LEFT JOIN discounts d ON pd.discount_id = d.discount_id OR p.brand_id = d.brand_id OR p.category_id = d.category_id
+          JOIN $table t ON p.$id = t.$id
           $w GROUP BY t.$id, t.$name ORDER BY t.$name";
     $st = $conn->prepare($sql);
     $st->execute($p);
@@ -193,22 +208,25 @@ function facet_counts_group($conn, $STATE, $facet, $table, $id, $name)
     }
     return $map;
 }
-$brandCounts   = facet_counts_group($conn, $STATE, 'brand', 'brands', 'brand_id', 'brand_name');
-$catCounts     = facet_counts_group($conn, $STATE, 'category', 'categories', 'category_id', 'cat_name');
-$matCounts     = facet_counts_group($conn, $STATE, 'case_material', 'case_materials', 'case_material_id', 'material');
-$genderCounts  = facet_counts_group($conn, $STATE, 'gender', 'genders', 'gender_id', 'gender');
-$colorCounts   = facet_counts_group($conn, $STATE, 'dial_color', 'dial_colors', 'dial_color_id', 'dial_color');
+
+$brandCounts = facet_counts_group($conn, $STATE, 'brand', 'brands', 'brand_id', 'brand_name');
+$catCounts = facet_counts_group($conn, $STATE, 'category', 'categories', 'category_id', 'cat_name');
+$matCounts = facet_counts_group($conn, $STATE, 'case_material', 'case_materials', 'case_material_id', 'material');
+$genderCounts = facet_counts_group($conn, $STATE, 'gender', 'genders', 'gender_id', 'gender');
+$colorCounts = facet_counts_group($conn, $STATE, 'dial_color', 'dial_colors', 'dial_color_id', 'dial_color');
 
 /* Size counts */
 list($wSize, $pSize) = build_where($STATE, 'size');
 $sqlSize = "SELECT
-  SUM(CASE WHEN p.case_size < 29 THEN 1 ELSE 0 END)        AS lt29,
-  SUM(CASE WHEN p.case_size >= 30 AND p.case_size <= 34.99 THEN 1 ELSE 0 END) AS r30_34,
-  SUM(CASE WHEN p.case_size >= 35 AND p.case_size <= 37.99 THEN 1 ELSE 0 END) AS r35_37,
-  SUM(CASE WHEN p.case_size >= 38 AND p.case_size <= 40.99 THEN 1 ELSE 0 END) AS r38_40,
-  SUM(CASE WHEN p.case_size >= 41 AND p.case_size <= 43.99 THEN 1 ELSE 0 END) AS r41_43,
-  SUM(CASE WHEN p.case_size >= 44 THEN 1 ELSE 0 END)       AS gte44
-  FROM products p $wSize";
+    SUM(CASE WHEN p.case_size < 29 THEN 1 ELSE 0 END) AS lt29,
+    SUM(CASE WHEN p.case_size >= 30 AND p.case_size <= 34.99 THEN 1 ELSE 0 END) AS r30_34,
+    SUM(CASE WHEN p.case_size >= 35 AND p.case_size <= 37.99 THEN 1 ELSE 0 END) AS r35_37,
+    SUM(CASE WHEN p.case_size >= 38 AND p.case_size <= 40.99 THEN 1 ELSE 0 END) AS r38_40,
+    SUM(CASE WHEN p.case_size >= 41 AND p.case_size <= 43.99 THEN 1 ELSE 0 END) AS r41_43,
+    SUM(CASE WHEN p.case_size >= 44 THEN 1 ELSE 0 END) AS gte44
+    FROM products p
+    JOIN discounts d ON p.brand_id = d.brand_id OR p.category_id = d.category_id
+    $wSize";
 $stz = $conn->prepare($sqlSize);
 $stz->execute($pSize);
 $sz = $stz->fetch(PDO::FETCH_ASSOC) ?: ['lt29' => 0, 'r30_34' => 0, 'r35_37' => 0, 'r38_40' => 0, 'r41_43' => 0, 'gte44' => 0];
@@ -227,22 +245,18 @@ function qs_without($key)
     unset($q[$key]);
     return http_build_query($q);
 }
-
-$favSet = fav_get_ids($conn); // <-- fixed helper name
+$favSet = fav_get_ids($conn);
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>Watches — Browse</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"> <!-- for bi-search, bi-cart3 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discounted Watches - Verve Timepieces</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background: #fff;
@@ -398,12 +412,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             text-align: center;
         }
 
-        .results-count {
-            padding: .25rem .75rem;
-            color: #666;
-        }
-
-        /* hearts */
         .cardwrap {
             position: relative;
         }
@@ -426,6 +434,12 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
         .fav-pin.active {
             background: #352826;
             color: #fff;
+        }
+
+        /* Adjust cart icon size to match other pages */
+        .bi-cart3,
+        .fa-shopping-cart {
+            font-size: 1.5rem !important;
         }
 
         /* Price slider */
@@ -479,22 +493,24 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             background: #111;
             border-radius: 4px;
         }
+
+        .results-count {
+            padding: .25rem .75rem;
+            color: #666;
+        }
     </style>
 </head>
 
 <body>
-
     <div class="row">
         <?php include 'navbarnew.php'; ?>
     </div>
 
     <form class="filters-wrap" method="get" id="filtersForm">
-        <!-- hidden fields for Price (only submit when Apply is clicked) -->
         <input type="hidden" name="min_price" id="min_price_field" <?= $minPrice === null ? 'disabled' : 'value="' . h($minPrice) . '"' ?>>
         <input type="hidden" name="max_price" id="max_price_field" <?= $maxPrice === null ? 'disabled' : 'value="' . h($maxPrice) . '"' ?>>
 
         <div class="filters-bar">
-            <!-- Sort By -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= $sort !== 'latest' ? 'filter-active' : '' ?>" type="button" data-bs-toggle="dropdown">Sort By</button>
                 <div class="dropdown-menu">
@@ -505,7 +521,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                 </div>
             </div>
 
-            <!-- Brand -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= activeBadge(!empty($brandIds)) ?>" type="button" data-bs-toggle="dropdown">Brand</button>
                 <div class="dropdown-menu">
@@ -521,7 +536,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                 </div>
             </div>
 
-            <!-- Price -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= activeBadge($minPrice !== null || $maxPrice !== null) ?>" type="button" data-bs-toggle="dropdown">Price</button>
                 <div class="dropdown-menu">
@@ -547,7 +561,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                 </div>
             </div>
 
-            <!-- Size -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= activeBadge(!empty($sizeRanges)) ?>" type="button" data-bs-toggle="dropdown">Size</button>
                 <div class="dropdown-menu">
@@ -574,7 +587,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                 </div>
             </div>
 
-            <!-- Case Material -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= activeBadge(!empty($caseMatIds)) ?>" type="button" data-bs-toggle="dropdown">Case Material</button>
                 <div class="dropdown-menu">
@@ -592,7 +604,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                 </div>
             </div>
 
-            <!-- Dial Color -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= activeBadge(!empty($dialColorIds)) ?>" type="button" data-bs-toggle="dropdown">Dial Color</button>
                 <div class="dropdown-menu">
@@ -610,7 +621,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                 </div>
             </div>
 
-            <!-- Gender -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= activeBadge(!empty($genderIds)) ?>" type="button" data-bs-toggle="dropdown">Gender</button>
                 <div class="dropdown-menu">
@@ -628,7 +638,6 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                 </div>
             </div>
 
-            <!-- Category -->
             <div class="dropdown filter-pill">
                 <button class="btn <?= activeBadge(!empty($categoryIds)) ?>" type="button" data-bs-toggle="dropdown">Category</button>
                 <div class="dropdown-menu">
@@ -647,19 +656,18 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
             </div>
 
             <div class="divider-v"></div>
-            <a class="btn btn-outline-danger btn-reset" href="view_products.php">Reset</a>
+            <a class="btn btn-outline-danger btn-reset" href="discounts.php">Reset</a>
             <div class="results-count ms-auto"><?= count($products) ?> watches found</div>
         </div>
     </form>
 
     <div class="grid container-fluid">
-        <?php if (empty($products)): ?>
+        <?php if (empty($products)) : ?>
             <div class="text-center text-muted py-5">No products match these filters.</div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
-                <?php foreach ($products as $p): $pid = (int)$p['product_id'];
+                <?php foreach ($products as $p) : $pid = (int)$p['product_id'];
                     $fav = in_array($pid, $favSet, true); ?>
-
                     <?php
                     $originalPrice = (float)$p['price'];
                     $finalPrice = $originalPrice;
@@ -675,26 +683,27 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
                         }
                     }
                     ?>
-
                     <div class="col">
                         <div class="cardwrap">
-                            <button class="fav-pin js-fav <?= $fav ? 'active' : '' ?>" data-id="<?= $pid ?>" aria-label="Toggle favorite"><i class="fa-regular fa-heart"></i></button>
+                            <button class="fav-pin js-fav <?= $fav ? 'active' : '' ?>" data-id="<?= $pid ?>" aria-label="Toggle favorite">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
                             <a class="card-link" href="product_details.php?id=<?= $pid ?>" style="text-decoration:none; color:inherit; display:block;">
                                 <div class="product-card">
                                     <div class="img-box">
-                                        <?php if (!empty($p['image_url'])): ?>
+                                        <?php if (!empty($p['image_url'])) : ?>
                                             <img src="<?= h($p['image_url']) ?>" alt="<?= h($p['product_name']) ?>">
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <img src="../images/placeholder_watch.png" alt="No image">
                                         <?php endif; ?>
                                     </div>
                                     <div class="brand"><?= h(strtoupper($p['brand_name'])) ?></div>
                                     <div class="model"><?= h($p['product_name']) ?></div>
                                     <div class="price">
-                                        <?php if ($isDiscounted): ?>
+                                        <?php if ($isDiscounted) : ?>
                                             <span style="text-decoration: line-through; color: #999;"><?= format_money($originalPrice) ?></span>
                                             <span style="font-weight:bold; color:#c94c4c; margin-left:7px;"><?= format_money($finalPrice) ?></span>
-                                        <?php else: ?>
+                                        <?php else : ?>
                                             <span><?= format_money($finalPrice) ?></span>
                                         <?php endif; ?>
                                     </div>

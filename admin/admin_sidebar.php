@@ -33,8 +33,8 @@ if (session_status() === PHP_SESSION_NONE) {
         <li class="nav-item <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_dashboard.php') ? 'active' : ''; ?>">
             <a class="nav-link py-3" href="admin_dashboard.php"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
         </li>
-        <!-- Products Category -->
-        <div class="category-title">Products</div>
+   
+        
         <li>
             <a href="product_management.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'product_management.php') ? 'active' : ''; ?>">
                 <i class="bi bi-tags me-2"></i> Products Management
@@ -42,31 +42,30 @@ if (session_status() === PHP_SESSION_NONE) {
         </li>
 
 
-        <!-- Orders Category -->
-        <div class="category-title">Orders</div>
         <li>
             <a href="order_management.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'order_management.php') ? 'active' : ''; ?>">
                 <i class="bi bi-box-seam me-2"></i> Order Management
             </a>
         </li>
 
-        <!-- Users Category -->
-        <div class="category-title">Users</div>
         <li>
             <a href="admin_users.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_users.php') ? 'active' : ''; ?>">
                 <i class="bi bi-people me-2"></i> Users Management
             </a>
         </li>
 
-        <!-- REview Category  --->
-        <div class="category-title">Reviews</div>
         <li>
             <a href="review_management.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'review_management.php') ? 'active' : ''; ?>">
                 <i class="bi bi-chat-dots-fill"></i> Review Management
             </a>
         </li>
 
-        <!-- Add more main categories as needed -->
+        <li>
+            <a href="discounts_management.php" class="nav-link py-2 <?php echo (basename($_SERVER['PHP_SELF']) == 'discounts_management.php') ? 'active' : ''; ?>">
+                <i class="bi bi-chat-dots-fill"></i> Discounts Management
+            </a>
+        </li>
+
     </ul>
 </div>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -143,6 +142,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     .sidebar ul li {
         margin-bottom: 0;
+        margin-top: 8px;
     }
 
     .sidebar ul li a {
@@ -179,15 +179,6 @@ if (session_status() === PHP_SESSION_NONE) {
     .sidebar ul li a:hover .bi,
     .sidebar ul li a.active .bi {
         color: #352826;
-    }
-
-    .sidebar .category-title {
-        font-weight: 600;
-        color: #352826;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.82rem;
-        margin: 17px 0 7px 22px;
     }
 
     @media (max-width: 991.98px) {
