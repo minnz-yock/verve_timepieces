@@ -66,9 +66,10 @@ function mm($n)
         }
 
         .cart-item-img img {
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 80%;
+            max-height: 80%;
             object-fit: contain;
+            margin-top: -20px;
         }
 
         .item-details {

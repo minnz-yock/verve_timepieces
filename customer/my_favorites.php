@@ -39,7 +39,10 @@ if ($ids) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
   <style>
-    body { color: #352826; }
+    body {
+      color: #352826;
+    }
+
     .page {
       max-width: 1200px;
       margin: 0 auto;
@@ -64,9 +67,11 @@ if ($ids) {
     }
 
     .imgbox img {
-      width: 100%;
-      height: 100%;
+      width: 80%;
+      height: 80%;
       object-fit: contain;
+      align-items: center;
+      margin-top: -40px;
     }
 
     .cardlink {
@@ -84,9 +89,17 @@ if ($ids) {
       text-align: center;
     }
 
-    .model { font-weight: 600; text-align: center; color: #785A49; }
+    .model {
+      font-weight: 600;
+      text-align: center;
+      color: #785A49;
+    }
 
-    .price { font-weight: 700; text-align: center; color: #352826; }
+    .price {
+      font-weight: 700;
+      text-align: center;
+      color: #352826;
+    }
 
     .cardwrap {
       position: relative;
@@ -107,7 +120,10 @@ if ($ids) {
       z-index: 5;
     }
 
-    .fav-pin.active { background: #352826; color: #fff; }
+    .fav-pin.active {
+      background: #352826;
+      color: #fff;
+    }
   </style>
 </head>
 
@@ -186,6 +202,7 @@ if ($ids) {
       });
     });
   </script>
+
 </body>
 
 </html>

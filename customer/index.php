@@ -2,7 +2,6 @@
 //  require_once('../user_login_check.php');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-   
 }
 
 
@@ -286,6 +285,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <h2>More Than Just Watches</h2>
             <p>Explore our expert services to enhance your timepiece experience.</p>
             <a href="services.php" class="btn btn-dark">Our Services</a>
+
         </section>
 
         <!-- About Us Snippet (Example) -->
@@ -304,22 +304,19 @@ if (session_status() === PHP_SESSION_NONE) {
         </section>
 
     </main>
-    
-      <?php include 'review_handler.php'; ?>
+
+    <?php include 'review_handler.php'; ?>
     <?php include 'home_reviews_section.php'; ?>
 
     <!-- Footer -->
-    <footer class="text-center text-lg-start bg-body-tertiary text-muted py-4">
-        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
-            © 2025 Verve Timepieces. All rights reserved. | <a href="privacy.php">Privacy Policy</a> | <a
-                href="terms.php">Terms & Conditions</a>
-        </div>
-    </footer>
+    <div class="row">
 
+        <?php include 'footer.php'; ?>
+
+    </div>
     <!-- Bootstrap JS Bundle - Needed for dropdowns and carousel -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous">
     </script>
-
 
 </body>
 

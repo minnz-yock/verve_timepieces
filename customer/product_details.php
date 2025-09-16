@@ -126,9 +126,12 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
     <style>
         body {
             font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-            color: #222;
-            background: #fdfdfd;
+            color: #352826;
+            background: #FDFBF9;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
+
 
         .page-wrap {
             max-width: 1200px;
@@ -140,10 +143,11 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
             padding-top: 24px;
         }
 
+
         .img-wrap {
-            width: 100%;
-            background: #fff;
-            border: 1px solid #eee;
+            width: 70%;
+            background: #FFFFFF;
+            border: 1px solid #E7DAD1;
             border-radius: 12px;
             aspect-ratio: 1/1;
             display: grid;
@@ -152,75 +156,102 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
         }
 
         .img-wrap img {
-            width: 100%;
-            height: 100%;
+            width: 80%;
+            height: 80%;
             object-fit: contain;
+            margin-top: -70px;
         }
+
 
         .badge-retailer {
             font-weight: 700;
             letter-spacing: .2px;
-            color: #555;
+            color: #6B5A54;
             font-size: .9rem;
             margin-bottom: 2px;
         }
 
         .warranty {
-            color: #555;
+            color: #6B5A54;
             font-size: .95rem;
             margin-bottom: 20px;
         }
+
 
         .brand {
             font-weight: 800;
             letter-spacing: 1px;
             text-transform: uppercase;
             font-size: .9rem;
+            color: #A57A5B;
         }
 
         .model {
-            font-weight: 700;
+            font-weight: 800;
             font-size: 2.2rem;
             margin-top: 4px;
             line-height: 1.2;
+            color: #352826;
         }
 
         .desc {
             margin: 1rem 0;
-            color: #555;
+            color: #6B5A54;
             font-size: 1rem;
             line-height: 1.5;
         }
 
+
         .price {
-            font-weight: 700;
+            font-weight: 800;
             font-size: 2rem;
             margin: 16px 0;
+            color: #352826;
         }
 
         .btn-fav {
-            border: 1px solid #222;
-            border-radius: 8px;
+            border: 1.5px solid #352826;
+            color: #352826;
+            background: transparent;
+            border-radius: 10px;
+            padding: .7rem .95rem;
+            transition: transform .15s ease, background-color .15s ease, color .15s ease, border-color .15s ease;
+        }
+
+        .btn-fav:hover {
+            background: #352826;
+            color: #FFFFFF;
         }
 
         .btn-bag {
-            background: #222;
-            color: #fff;
-            border-radius: 8px;
-            font-weight: 600;
+            background: #352826;
+            color: #FFFFFF;
+            border: 1.5px solid #352826;
+            border-radius: 10px;
+            font-weight: 700;
+            letter-spacing: .2px;
+            padding: .9rem 1.4rem;
+            transition: transform .15s ease, background-color .15s ease, border-color .15s ease;
+        }
+
+        .btn-bag:hover {
+            background: #2A201D;
+            border-color: #2A201D;
         }
 
         .btn-bag:disabled {
-            background: #ccc;
-            border-color: #ccc;
-            color: #888;
+            background: #CFC7C2;
+            border-color: #CFC7C2;
+            color: #7A716D;
+            cursor: not-allowed;
         }
 
         .stock-msg {
-            color: #d00;
-            font-weight: 700;
+            color: #D12C2C;
+            font-weight: 800;
             margin-top: .75rem;
         }
+
 
         .specs {
             padding-top: 48px;
@@ -228,15 +259,16 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
 
         .specs h3,
         .like h3 {
-            font-weight: 800;
-            letter-spacing: .5px;
+            font-weight: 900;
+            letter-spacing: .6px;
             margin-bottom: 16px;
             text-transform: uppercase;
+            color: #352826;
         }
 
         .spec-table .row {
             padding: .8rem 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #E7DAD1;
         }
 
         .spec-table .row:last-child {
@@ -244,8 +276,10 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
         }
 
         .spec-label {
-            color: #555;
+            color: #A57A5B;
+            font-weight: 700;
         }
+
 
         .like {
             padding-top: 48px;
@@ -254,24 +288,26 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
         .card-watch {
             text-align: center;
             border: 0;
-            background: #fdfdfd;
+            background: transparent;
             position: relative;
         }
 
         .card-watch .imgbox {
             width: 100%;
             aspect-ratio: 1/1;
-            border: 1px solid #eee;
+            border: 1px solid #E7DAD1;
             border-radius: 12px;
             display: grid;
             place-items: center;
             overflow: hidden;
+            background: #FFFFFF;
         }
 
         .card-watch img {
-            width: 100%;
-            height: 100%;
+            width: 80%;
+            height: 80%;
             object-fit: contain;
+            margin-top: -20px;
         }
 
         .card-watch .brand {
@@ -279,33 +315,37 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
             margin-top: .8rem;
             font-size: .8rem;
             letter-spacing: 1px;
+            color: #A57A5B;
         }
 
         .card-watch .model {
             font-weight: 600;
-            font-size: .9rem;
-            color: #444;
+            font-size: .95rem;
+            color: #6B5A54;
             min-height: 2.2em;
-            margin: .1rem 0 .35rem;
+            margin: .15rem 0 .4rem;
             line-height: 1.3;
         }
 
         .card-watch .price {
-            font-weight: 700;
+            font-weight: 800;
             font-size: 1rem;
-            color: #222;
+            color: #352826;
         }
+
 
         a.card-link {
             text-decoration: none;
             color: inherit;
             display: block;
-            transition: all 0.2s ease-in-out;
+            transition: transform .18s ease, box-shadow .18s ease;
+            will-change: transform;
         }
 
         a.card-link:hover {
             transform: translateY(-5px);
         }
+
 
         .fav-pin {
             position: absolute;
@@ -316,16 +356,22 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
             display: grid;
             place-items: center;
             border-radius: 50%;
-            background: #fff;
-            border: 1px solid #222;
+            background: #FFFFFF;
+            border: 1.5px solid #352826;
+            color: #352826;
             cursor: pointer;
             z-index: 5;
-            transition: all 0.2s ease-in-out;
+            transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
+        }
+
+        .fav-pin:hover {
+            transform: translateY(-2px);
         }
 
         .fav-pin.active {
-            background: #222;
-            color: #fff;
+            background: #352826;
+            color: #FFFFFF;
+            border-color: #352826;
         }
 
         hr {
@@ -333,6 +379,44 @@ $warrantyText = $product['brand_name'] . " official 2 year warranty included";
             border-top: 1px solid #352826;
             margin: 24px 0;
             width: 100%;
+        }
+
+
+        .text-muted {
+            color: #6B5A54 !important;
+        }
+
+        .badge.bg-danger {
+            color: #FFFFFF !important;
+        }
+
+
+        @media (max-width: 991px) {
+            .img-wrap {
+                width: 100%;
+            }
+
+            .model {
+                font-size: 1.8rem;
+            }
+
+            .price {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .model {
+                font-size: 1.6rem;
+            }
+
+            .btn-bag {
+                padding: .75rem 1.1rem;
+            }
+
+            .btn-fav {
+                padding: .6rem .85rem;
+            }
         }
     </style>
 </head>

@@ -190,7 +190,7 @@ function get_brand_id($conn, $brandName)
     <div class="hero-wrap container text-center">
       <h1 class="display-5 mb-3">Our Story</h1>
       <p class="mx-auto" style="max-width:900px;">
-        Crafting timeless elegance, we’re passionate about connecting watch lovers with pieces they’ll keep for years.
+        Crafting timeless elegance, we're passionate about connecting watch lovers with pieces they'll keep for years.
       </p>
     </div>
   </section>
@@ -202,12 +202,12 @@ function get_brand_id($conn, $brandName)
         <div class="col-lg-7">
           <h2 class="h3 section-title mb-3">Our Mission</h2>
           <p class="mb-3">
-            At Verve Timepieces, a watch is more than a timekeeper—it’s character and craft. We curate modern icons
+            At Verve Timepieces, a watch is more than a timekeeper—it's character and craft. We curate modern icons
             and everyday classics, list specs in plain language, and make ownership simple and secure.
           </p>
           <p class="mb-0">
             Every listing is photographed clearly, priced fairly, and shipped with care. If you need help with size,
-            water-resistance, or movements, we’ll guide you with honest, practical advice.
+            water-resistance, or movements, we'll guide you with honest, practical advice.
           </p>
         </div>
         
@@ -232,21 +232,21 @@ function get_brand_id($conn, $brandName)
         <div class="col-6 col-md-3">
           <div class="stat">
             <div class="icon-wrap"><i class="bi bi-clock-history"></i></div>
-            <div class="num">25+</div>
-            <div class="label">Years of Passion*</div>
+            <div class="num">5+</div>
+            <div class="label">Months of Passion*</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="stat">
             <div class="icon-wrap"><i class="bi bi-emoji-smile"></i></div>
-            <div class="num">50,000+</div>
+            <div class="num">50+</div>
             <div class="label">Happy Customers*</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="stat">
             <div class="icon-wrap"><i class="bi bi-award"></i></div>
-            <div class="num">100+</div>
+            <div class="num">30+</div>
             <div class="label">Brands & Styles</div>
           </div>
         </div>
@@ -258,7 +258,6 @@ function get_brand_id($conn, $brandName)
           </div>
         </div>
       </div>
-      <p class="text-center muted mt-2 mb-0" style="font-size:.85rem;">*Illustrative figures for layout; replace with your actual numbers.</p>
     </section>
 
     <hr>
@@ -336,7 +335,7 @@ function get_brand_id($conn, $brandName)
         <div>
           <?php
           // Array of brand names to display
-          $brands = ['Rolex', 'Omega', 'Seiko', 'Casio', 'Patek Philippe', 'Timex'];
+          $brands = [ 'Hermès', 'Omega', 'Tudor', 'Louis Vuitton', 'Patek Philippe', 'Timex', 'Ulysse Nardin', 'Louis Moinet', 'Bell & Ross'];
           foreach ($brands as $brandName) {
             $brandId = get_brand_id($conn, $brandName);
             if ($brandId) {
@@ -355,14 +354,16 @@ function get_brand_id($conn, $brandName)
       <div class="soft-card p-4 text-center">
         <h2 class="h5 mb-2">Questions? We’re here to help.</h2>
         <p class="mb-3">Need help choosing a size, movement, or style? Send us a note—we’ll reply with plain, useful advice.</p>
-        <a href="contact.php" class="btn btn-dark"><i class="bi bi-envelope me-2"></i>Contact Verve Timepieces</a>
+        <a href="contact_us.php" class="btn btn-dark"><i class="bi bi-envelope me-2"></i>Contact Verve Timepieces</a>
       </div>
     </section>
   </main>
 
-  <footer class="container pb-4 text-center text-muted">
-    <small>© <?= date('Y') ?> Verve Timepieces. All rights reserved.</small>
-  </footer>
+    <div class="row">
+
+        <?php include 'footer.php'; ?>
+
+    </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

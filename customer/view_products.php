@@ -62,7 +62,7 @@ $sizeRanges     = isset($_GET['size'])         ? array_map('strval', (array)$_GE
 $minPrice       = isset($_GET['min_price'])    && $_GET['min_price'] !== '' ? max(0, (float)$_GET['min_price']) : null;
 $maxPrice       = isset($_GET['max_price'])    && $_GET['max_price'] !== '' ? (float)$_GET['max_price'] : null;
 $sort           = isset($_GET['sort']) ? $_GET['sort'] : 'latest'; // latest | price_asc | price_desc
-
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 /* ---------- DB min/max price ---------- */
 $mm = $conn->query("SELECT MIN(price) AS minp, MAX(price) AS maxp FROM products")->fetch(PDO::FETCH_ASSOC);
 $globalMin = isset($mm['minp']) ? (float)$mm['minp'] : 0;
@@ -84,6 +84,13 @@ function build_where(array $state, string $excludeFacet = null)
         $w[] = "p.category_id IN ($in)";
         $p   = array_merge($p, $state['category']);
     }
+    if (!empty($state['search'])) {
+        $w[] = "(p.product_name LIKE ? OR p.brand_id IN (SELECT brand_id FROM brands WHERE brand_name LIKE ?))";
+        $like = "%" . $state['search'] . "%";
+        $p[] = $like;
+        $p[] = $like;
+    }
+
     if ($excludeFacet !== 'case_material' && !empty($state['case_material'])) {
         $in  = implode(',', array_fill(0, count($state['case_material']), '?'));
         $w[] = "p.case_material_id IN ($in)";
@@ -150,6 +157,7 @@ $STATE = [
     'size' => $sizeRanges,
     'min_price' => $minPrice,
     'max_price' => $maxPrice,
+    'search'       => $search
 ];
 list($whereSql, $whereParams) = build_where($STATE);
 
@@ -367,9 +375,12 @@ $favSet = fav_get_ids($conn); // <-- fixed helper name
         }
 
         .img-box img {
-            width: 100%;
-            height: 100%;
+            width: 80%;
+            height: 80%;
             object-fit: contain;
+            align-items: center;
+            margin-top: -20px;
+            
         }
 
         .brand {

@@ -10,6 +10,33 @@ require_once $root . '/dbconnect.php';
 require_once $root . '/customer/favorites_util.php';
 $favCount = fav_count($conn);
 
+
+$brand_rows = [];
+$category_rows = [];
+
+
+try {
+    // Match your schema used in view_products.php:
+    // brands(brand_id, brand_name), categories(category_id, cat_name)
+    $brand_stmt = $conn->query("
+        SELECT brand_id AS id, brand_name AS name
+        FROM brands
+        ORDER BY brand_name
+    ");
+    $brand_rows = $brand_stmt ? $brand_stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+
+    $cat_stmt = $conn->query("
+        SELECT category_id AS id, cat_name AS name
+        FROM categories
+        ORDER BY cat_name
+    ");
+    $category_rows = $cat_stmt ? $cat_stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+} catch (Throwable $e) {
+    // Optional: error_log("Nav fetch error: " . $e->getMessage());
+    $brand_rows = [];
+    $category_rows = [];
+}
+
 // Count cart items for the badge
 $session_id = session_id();
 $user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
@@ -34,28 +61,46 @@ $cartCount = $cart_count_stmt->fetchColumn();
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!-- <li class="nav-item"><a class="nav-link active" href="homepage.php">Home</a></li> -->
-
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">Buy Watch</a>
-                    <ul class="dropdown-menu multi-column-dropdown" aria-labelledby="navbarDropdown">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6>Brands</h6>
-                                <ul class="list-unstyled">
-                                    <li><a class="dropdown-item" href="brand-a.php">Brand Name A</a></li>
-                                    <li><a class="dropdown-item" href="brand-b.php">Brand Name B</a></li>
-                                    <li><a class="dropdown-item" href="brand-c.php">Brand Name C</a></li>
-                                    <li><a class="dropdown-item" href="all-brands.php">View All Brands</a></li>
-                                </ul>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBuy" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Buy Watch
+                    </a>
+                    <ul class="dropdown-menu multi-column-dropdown p-3" aria-labelledby="navbarDropdownBuy" style="min-width: 480px;">
+                        <div class="row gx-4">
+                            <!-- Brands -->
+                            <div class="col-12 col-md-6">
+                                <h6 class="dropdown-header">Brands</h6>
+                                <div class="list-group list-group-flush">
+                                    <?php if (!empty($brand_rows)): ?>
+                                        <?php foreach ($brand_rows as $b): ?>
+                                            <a
+                                                class="dropdown-item"
+                                                href="/customer/view_products.php?<?php echo http_build_query(['brand' => [(int)$b['id']]]); ?>">
+                                                <?php echo htmlspecialchars($b['name'], ENT_QUOTES, 'UTF-8'); ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <span class="dropdown-item text-muted">No brands</span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <h6>Collections</h6>
-                                <ul class="list-unstyled">
-                                    <li><a class="dropdown-item" href="dress-watches.php">Dress Watches</a></li>
-                                    <li><a class="dropdown-item" href="sport-watches.php">Sport Watches</a></li>
-                                    <li><a class="dropdown-item" href="all-collections.php">View All Collections</a></li>
-                                </ul>
+
+                            <!-- Categories -->
+                            <div class="col-12 col-md-6">
+                                <h6 class="dropdown-header">Categories</h6>
+                                <div class="list-group list-group-flush">
+                                    <?php if (!empty($category_rows)): ?>
+                                        <?php foreach ($category_rows as $c): ?>
+                                            <a
+                                                class="dropdown-item"
+                                                href="/customer/view_products.php?<?php echo http_build_query(['category' => [(int)$c['id']]]); ?>">
+                                                <?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <span class="dropdown-item text-muted">No categories</span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </ul>
@@ -65,14 +110,17 @@ $cartCount = $cart_count_stmt->fetchColumn();
                 <li class="nav-item"><a class="nav-link" href="services.php">Services</a></li>
             </ul>
 
-            <form class="d-flex me-auto ms-3 search-form" role="search" method="GET" action="search.php">
-                <div class="input-group">
-                    <input class="form-control search-input" type="search" name="q" placeholder="Search Watches..." aria-label="Search">
-                    <button class="btn btn-search" type="submit" aria-label="Search">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
+            <form class="d-flex ms-3" method="get" action="/customer/view_products.php">
+                <input
+                    class="form-control"
+                    type="search"
+                    name="search"
+                    placeholder="Search watches or brands..."
+                    aria-label="Search"
+                    required>
+                <button class="btn btn-outline-light" type="submit"> <i class="bi bi-search"></i></button>
             </form>
+
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <?php if (!empty($_SESSION['user_id'])): ?>
@@ -205,37 +253,56 @@ $cartCount = $cart_count_stmt->fetchColumn();
         padding-bottom: 5px;
     }
 
-    /* Search */
-    .search-form {
-        max-width: 320px;
+
+    /* Search form container */
+    .navbar .search-form,
+    .navbar form.d-flex {
+        max-width: 280px;
+        /* not too wide, not too narrow */
+        margin-left: 0.75rem;
     }
 
-    .search-input {
+    /* Search input */
+    .navbar .form-control[type="search"] {
         border: 1.5px solid #A57A5B;
         background: #fff;
         color: #352826;
         border-radius: 6px 0 0 6px;
-        font-size: .95rem;
-        padding: .6rem .9rem;
+        font-size: 0.9rem;
+        padding: .45rem .7rem;
+        height: 39px;
+        box-shadow: none;
+        margin-right: 0 !important;
     }
 
-    .search-input::placeholder {
+    .navbar .form-control[type="search"]::placeholder {
         color: #A57A5B;
         font-weight: 500;
+        font-size: 0.9rem;
     }
 
-    .btn-search {
+    .navbar .form-control[type="search"]:focus {
+        width: 300px;
+        transition: width .3s ease;
+    }
+
+    /* Search button */
+    .navbar .btn[type="submit"] {
         background: #352826;
         border: 1.5px solid #352826;
         color: #DED2C8;
         border-radius: 0 6px 6px 0;
-        padding: .6rem .8rem;
+        padding: .45rem .7rem;
+        height: 39px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all .2s;
     }
 
-    .btn-search:hover {
+    .navbar .btn[type="submit"]:hover {
         background: #785A49;
         border-color: #785A49;
         color: #fff;
@@ -252,6 +319,9 @@ $cartCount = $cart_count_stmt->fetchColumn();
     .navbar-nav .nav-item+.nav-item {
         margin-left: 15px;
     }
+
+
+
 
     /* Keep the heart fully visible; place badge INSIDE the icon area */
     .fav-link {
@@ -319,8 +389,8 @@ $cartCount = $cart_count_stmt->fetchColumn();
     }
 
     .bag-item-img img {
-        max-width: 100%;
-        max-height: 100%;
+        max-width: 70%;
+        max-height: 70%;
         object-fit: contain;
     }
 
@@ -358,7 +428,10 @@ $cartCount = $cart_count_stmt->fetchColumn();
         padding: 8px 24px;
         text-transform: uppercase;
     }
-    .btn-checkout:hover { background: #785A49 }
+
+    .btn-checkout:hover {
+        background: #785A49
+    }
 
     .modal-body-empty {
         text-align: center;
@@ -367,25 +440,153 @@ $cartCount = $cart_count_stmt->fetchColumn();
     }
 
     @media (max-width: 991px) {
-        .dropdown-menu.multi-column-dropdown {
-            width: 100%;
-            padding: 10px;
+
+        /* Drawer container */
+        .navbar {
+            height: auto;
+            padding: .75rem 1rem;
         }
 
-        .dropdown-menu.multi-column-dropdown .col-md-6 {
-            padding: 0 5px;
+        .navbar .navbar-toggler {
+            z-index: 1060;
+            border: 1px solid #DED2C8;
+        }
+
+        .navbar .navbar-collapse {
+            position: fixed;
+            top: 0;
+            right: 0;
+            /* slide in from right */
+            bottom: 0;
+            width: 88%;
+            max-width: 380px;
+            background: #fff;
+            /* solid panel, not transparent */
+            border-left: 1px solid #DED2C8;
+            box-shadow: -16px 0 30px rgba(0, 0, 0, .15);
+            padding: 84px 18px 24px;
+            /* comfy padding */
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform .28s ease;
+            z-index: 1050;
+        }
+
+        .navbar .navbar-collapse.show {
+            transform: translateX(0);
+        }
+
+        /* Section spacing + dividers to improve scanability */
+        .navbar .navbar-nav {
+            gap: .25rem;
+        }
+
+        .navbar .navbar-nav .nav-link {
+            display: block;
+            padding: .9rem .6rem;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            color: #352826 !important;
+        }
+
+        .navbar .navbar-nav .nav-link:hover {
+            background: #F5EEE9;
+            /* subtle highlight */
+            color: #352826 !important;
+        }
+
+        /* Headings inside drawer */
+        .dropdown-menu.multi-column-dropdown {
+            position: static;
+            float: none;
+            width: 100%;
+            margin-top: .5rem;
+            border: 1px solid #DED2C8;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: none;
         }
 
         .dropdown-menu.multi-column-dropdown h6 {
+            color: #785A49;
+            border-bottom: 1px solid #DED2C8;
+            padding-bottom: 6px;
             margin-bottom: 10px;
+            font-weight: 700;
         }
 
-        .navbar-nav .nav-item+.nav-item {
-            margin-left: 0;
+        /* 3) Search block: full-width, pill style */
+        .navbar form.d-flex {
+            max-width: 100%;
+            margin: .25rem 0 1rem 0;
         }
 
-        .fav-link {
-            padding-right: 1rem;
+        .navbar .form-control[type="search"] {
+            width: 100%;
+            height: 42px;
+            border: 1.5px solid #A57A5B;
+            border-right: 0;
+            border-radius: 999px 0 0 999px;
+            /* pill left */
+            padding: .55rem .9rem;
+            font-size: .95rem;
+        }
+
+        .navbar .btn[type="submit"] {
+            height: 42px;
+            border-radius: 0 999px 999px 0;
+            /* pill right */
+            padding: .55rem .9rem;
+            border-width: 1.5px;
+        }
+
+        /* 4) Account row: icon + name align nicely */
+        #userDropdown .bi-person-circle {
+            font-size: 1.6rem;
+            vertical-align: -3px;
+        }
+
+        #userDropdown {
+            padding-left: .25rem;
+        }
+
+        /* 5) Icon rows (bag & favorites) with badges close */
+        .navbar .nav-item.position-relative {
+            margin: .25rem 0;
+        }
+
+        .navbar .nav-item.position-relative .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .6rem .4rem;
+            border-radius: 10px;
+        }
+
+        .navbar .nav-item.position-relative .nav-link:hover {
+            background: #F5EEE9;
+        }
+
+        .navbar .nav-item.position-relative i {
+            font-size: 1.35rem;
+        }
+
+        .navbar .nav-item .nav-link {
+            padding: .55rem .35rem;
+        }
+
+        .bag-badge,
+        .fav-badge {
+            top: -2px;
+            /* even tighter on mobile */
+            right: -2px;
+            font-size: .70rem;
+        }
+
+        /* Brand image smaller so it doesn’t push the drawer */
+        .navbar-brand img {
+            height: 64px;
+            margin: 0;
         }
     }
 </style>
@@ -438,20 +639,20 @@ $cartCount = $cart_count_stmt->fetchColumn();
     }
 
     async function fetchBagData() {
-        
-            try {
-                const res = await fetch('get_cart_data.php'); // match actual filename
-                if (!res.ok) throw new Error('Failed to load cart');
-                const data = await res.json();
 
-                // TODO: render the full cart table/list here
-                // e.g., document.getElementById('cart-container').innerHTML = renderCartHTML(data);
+        try {
+            const res = await fetch('get_cart_data.php'); // match actual filename
+            if (!res.ok) throw new Error('Failed to load cart');
+            const data = await res.json();
 
-            } catch (e) {
-                document.getElementById('cart-container').innerHTML =
-                    '<div class="text-danger">Could not load your cart.</div>';
-                console.error(e);
-            }
+            // TODO: render the full cart table/list here
+            // e.g., document.getElementById('cart-container').innerHTML = renderCartHTML(data);
+
+        } catch (e) {
+            document.getElementById('cart-container').innerHTML =
+                '<div class="text-danger">Could not load your cart.</div>';
+            console.error(e);
+        }
 
 
         document.addEventListener('DOMContentLoaded', fetchBagData);
